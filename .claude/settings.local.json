@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx create-next-app@latest . --typescript --tailwind --eslint --app --src-dir=no --import-alias=\"@/*\" --yes)",
+      "PowerShell(node --version)",
+      "PowerShell(npm --version)",
+      "PowerShell(npx --version)",
+      "PowerShell(mkdir \"c:\\\\Users\\\\Merduino\\\\OneDrive - Fisterra SRL\\\\NucleoGym\\\\lib\" 2>&1)",
+      "PowerShell(mkdir \"c:\\\\Users\\\\Merduino\\\\OneDrive - Fisterra SRL\\\\NucleoGym\\\\components\\\\socio\" 2>&1)",
+      "PowerShell(mkdir \"c:\\\\Users\\\\Merduino\\\\OneDrive - Fisterra SRL\\\\NucleoGym\\\\components\\\\admin\" 2>&1)"
+    ]
+  }
+}
