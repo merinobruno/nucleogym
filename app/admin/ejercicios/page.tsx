@@ -60,18 +60,18 @@ export default function EjerciciosPage() {
       </div>
 
       {loading ? (
-        <p className="text-gray-400 text-sm">Cargando...</p>
+        <p className="text-gray-500 text-sm">Cargando...</p>
       ) : (
         <>
           <div className="bg-white rounded-lg border border-gray-200 overflow-hidden mb-6">
             {activos.length === 0 ? (
-              <p className="text-gray-400 text-sm p-6">No hay ejercicios cargados.</p>
+              <p className="text-gray-500 text-sm p-6">No hay ejercicios cargados.</p>
             ) : (
               <table className="w-full text-sm">
                 <thead className="bg-gray-50 border-b border-gray-200">
                   <tr>
-                    <th className="text-left px-4 py-3 font-medium text-gray-600">Nombre</th>
-                    <th className="text-left px-4 py-3 font-medium text-gray-600 hidden sm:table-cell">Descripción</th>
+                    <th className="text-left px-4 py-3 font-semibold text-gray-700">Nombre</th>
+                    <th className="text-left px-4 py-3 font-semibold text-gray-700 hidden sm:table-cell">Descripción</th>
                     <th className="px-4 py-3"></th>
                   </tr>
                 </thead>
@@ -79,19 +79,19 @@ export default function EjerciciosPage() {
                   {activos.map(e => (
                     <tr key={e.id} className="hover:bg-gray-50">
                       <td className="px-4 py-3 font-medium text-gray-900">{e.nombre}</td>
-                      <td className="px-4 py-3 text-gray-500 hidden sm:table-cell">
-                        {e.descripcion ?? <span className="text-gray-300">—</span>}
+                      <td className="px-4 py-3 text-gray-700 hidden sm:table-cell">
+                        {e.descripcion ?? <span className="text-gray-400">—</span>}
                       </td>
                       <td className="px-4 py-3 text-right space-x-2 whitespace-nowrap">
                         <Link
                           href={`/admin/ejercicios/${e.id}`}
-                          className="text-gray-500 hover:text-black"
+                          className="text-gray-700 hover:text-black underline"
                         >
                           Editar
                         </Link>
                         <button
                           onClick={() => handleEliminar(e.id)}
-                          className="text-red-400 hover:text-red-600"
+                          className="text-red-600 hover:text-red-800"
                         >
                           Eliminar
                         </button>
@@ -105,17 +105,17 @@ export default function EjerciciosPage() {
 
           {eliminados.length > 0 && (
             <div>
-              <h2 className="text-sm font-medium text-gray-500 mb-2">Eliminados</h2>
+              <h2 className="text-sm font-semibold text-gray-700 mb-2">Eliminados</h2>
               <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
                 <table className="w-full text-sm">
                   <tbody className="divide-y divide-gray-100">
                     {eliminados.map(e => (
                       <tr key={e.id} className="bg-gray-50">
-                        <td className="px-4 py-3 text-gray-400 line-through">{e.nombre}</td>
+                        <td className="px-4 py-3 text-gray-500 line-through">{e.nombre}</td>
                         <td className="px-4 py-3 text-right">
                           <button
                             onClick={() => handleRestaurar(e.id)}
-                            className="text-gray-400 hover:text-black text-sm"
+                            className="text-gray-700 hover:text-black underline text-sm"
                           >
                             Restaurar
                           </button>

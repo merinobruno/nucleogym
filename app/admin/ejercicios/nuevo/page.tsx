@@ -37,7 +37,7 @@ export default function NuevoEjercicioPage() {
   return (
     <div className="max-w-lg">
       <div className="flex items-center gap-3 mb-6">
-        <button onClick={() => router.back()} className="text-gray-400 hover:text-gray-700">
+        <button onClick={() => router.back()} className="text-gray-600 hover:text-gray-900">
           ← Volver
         </button>
         <h1 className="text-xl font-bold text-gray-900">Nuevo ejercicio</h1>
