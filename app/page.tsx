@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase'
+import { useDarkMode } from '@/lib/useDarkMode'
 
 type Step = 'dni' | 'clave'
 
@@ -12,8 +13,29 @@ type Socio = {
   clave: string
 }
 
+function SunIcon() {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="12" r="5"/>
+      <line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+      <line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+    </svg>
+  )
+}
+
+function MoonIcon() {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+    </svg>
+  )
+}
+
 export default function HomePage() {
   const router = useRouter()
+  const { dark, toggle } = useDarkMode()
   const [step, setStep] = useState<Step>('dni')
   const [dni, setDni] = useState('')
   const [clave, setClave] = useState('')
@@ -58,19 +80,37 @@ export default function HomePage() {
     router.push(`/rutina/${socio.id}`)
   }
 
+  const bg = dark ? 'bg-gray-900' : 'bg-gray-50'
+  const card = dark ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
+  const labelCls = dark ? 'text-gray-300' : 'text-gray-700'
+  const inputCls = dark
+    ? 'bg-gray-700 border-gray-600 text-white placeholder:text-gray-500 focus:ring-white'
+    : 'border-gray-300 text-gray-900 focus:ring-black'
+  const muted = dark ? 'text-gray-400' : 'text-gray-500'
+  const headingCls = dark ? 'text-white' : 'text-gray-900'
+  const toggleCls = dark ? 'text-gray-400 hover:text-white' : 'text-gray-500 hover:text-gray-800'
+
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center px-4">
+    <div className={`min-h-screen ${bg} flex flex-col items-center justify-center px-4 relative transition-colors`}>
+      <button
+        onClick={toggle}
+        className={`absolute top-4 right-4 p-2 rounded-full transition-colors ${toggleCls}`}
+        title={dark ? 'Modo claro' : 'Modo oscuro'}
+      >
+        {dark ? <SunIcon /> : <MoonIcon />}
+      </button>
+
       <div className="w-full max-w-sm">
         <div className="text-center mb-8">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/logo.png" alt="Núcleo Gimnasio" className="mx-auto mb-3 w-24 h-24 object-contain" />
-          <p className="text-gray-500 text-sm mt-1">Ingresá para ver tu rutina</p>
+          <p className={`text-sm mt-1 ${muted}`}>Ingresá para ver tu rutina</p>
         </div>
 
         {step === 'dni' ? (
-          <form onSubmit={handleDni} className="bg-white rounded-xl border border-gray-200 p-6 space-y-4 shadow-sm">
+          <form onSubmit={handleDni} className={`rounded-xl border p-6 space-y-4 shadow-sm ${card}`}>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">DNI</label>
+              <label className={`block text-sm font-medium mb-1 ${labelCls}`}>DNI</label>
               <input
                 type="text"
                 inputMode="numeric"
@@ -79,10 +119,10 @@ export default function HomePage() {
                 required
                 autoFocus
                 placeholder="Ingresá tu DNI"
-                className="w-full border border-gray-300 rounded-lg px-4 py-3 text-gray-900 text-base focus:outline-none focus:ring-2 focus:ring-black"
+                className={`w-full border rounded-lg px-4 py-3 text-base focus:outline-none focus:ring-2 ${inputCls}`}
               />
             </div>
-            {error && <p className="text-sm text-red-600">{error}</p>}
+            {error && <p className="text-sm text-red-500">{error}</p>}
             <button
               type="submit"
               disabled={loading}
@@ -92,12 +132,12 @@ export default function HomePage() {
             </button>
           </form>
         ) : (
-          <form onSubmit={handleClave} className="bg-white rounded-xl border border-gray-200 p-6 space-y-4 shadow-sm">
-            <p className="text-sm text-gray-500">
-              Hola, <span className="font-semibold text-gray-900">{socio?.nombre}</span>
+          <form onSubmit={handleClave} className={`rounded-xl border p-6 space-y-4 shadow-sm ${card}`}>
+            <p className={`text-sm ${muted}`}>
+              Hola, <span className={`font-semibold ${headingCls}`}>{socio?.nombre}</span>
             </p>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Clave</label>
+              <label className={`block text-sm font-medium mb-1 ${labelCls}`}>Clave</label>
               <input
                 type="password"
                 value={clave}
@@ -105,10 +145,10 @@ export default function HomePage() {
                 required
                 autoFocus
                 placeholder="Tu clave personal"
-                className="w-full border border-gray-300 rounded-lg px-4 py-3 text-gray-900 text-base focus:outline-none focus:ring-2 focus:ring-black"
+                className={`w-full border rounded-lg px-4 py-3 text-base focus:outline-none focus:ring-2 ${inputCls}`}
               />
             </div>
-            {error && <p className="text-sm text-red-600">{error}</p>}
+            {error && <p className="text-sm text-red-500">{error}</p>}
             <button
               type="submit"
               className="w-full bg-black text-white py-3 rounded-lg font-medium text-base hover:bg-gray-800 transition-colors"
@@ -118,7 +158,7 @@ export default function HomePage() {
             <button
               type="button"
               onClick={() => { setStep('dni'); setError(''); setClave('') }}
-              className="w-full text-sm text-gray-500 hover:text-gray-800"
+              className={`w-full text-sm ${muted} hover:text-gray-800`}
             >
               ← Cambiar DNI
             </button>
@@ -126,9 +166,9 @@ export default function HomePage() {
         )}
       </div>
 
-      <p className="mt-8 text-xs text-gray-400">
+      <p className={`mt-8 text-xs ${muted}`}>
         ¿Sos entrenador?{' '}
-        <a href="/admin/login" className="underline hover:text-gray-600">
+        <a href="/admin/login" className="underline hover:opacity-80">
           Accedé al panel
         </a>
       </p>
