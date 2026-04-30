@@ -77,6 +77,12 @@ export default function LoginPage() {
             {loading ? 'Ingresando...' : 'Ingresar'}
           </button>
         </form>
+
+        <p className="mt-8 text-xs text-gray-400 text-center">
+          <a href="/" className="underline hover:text-gray-600">
+            ← Volver al inicio
+          </a>
+        </p>
       </div>
     </div>
   )
