@@ -124,6 +124,13 @@ export default function HomePage() {
           </form>
         )}
       </div>
+
+      <p className="mt-8 text-xs text-gray-400">
+        ¿Sos entrenador?{' '}
+        <a href="/admin/login" className="underline hover:text-gray-600">
+          Accedé al panel
+        </a>
+      </p>
     </div>
   )
 }
