@@ -33,8 +33,9 @@ export default function LoginPage() {
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
       <div className="w-full max-w-sm">
         <div className="mb-8 text-center">
-          <h1 className="text-2xl font-bold text-gray-900">Núcleo Gym</h1>
-          <p className="text-sm text-gray-500 mt-1">Panel del entrenador</p>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/logo.png" alt="Núcleo Gimnasio" className="mx-auto mb-3 w-20 h-20 object-contain" />
+          <p className="text-sm text-gray-500">Panel del entrenador</p>
         </div>
 
         <form onSubmit={handleSubmit} className="bg-white shadow rounded-lg p-6 space-y-4">

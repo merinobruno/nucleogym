@@ -170,9 +170,13 @@ export default function RutinaPage() {
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-lg mx-auto px-4 py-6">
         <div className="flex items-center justify-between mb-6">
-          <div>
-            <h1 className="text-xl font-bold text-gray-900">{nombre}</h1>
-            <p className="text-sm text-gray-500">Tu rutina</p>
+          <div className="flex items-center gap-3">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/logo.png" alt="Núcleo Gimnasio" className="w-10 h-10 object-contain flex-shrink-0" />
+            <div>
+              <h1 className="text-xl font-bold text-gray-900">{nombre}</h1>
+              <p className="text-sm text-gray-500">Tu rutina</p>
+            </div>
           </div>
           <button
             onClick={handleLogout}

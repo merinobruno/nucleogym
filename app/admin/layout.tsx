@@ -45,7 +45,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       <nav className="bg-white border-b border-gray-200">
         <div className="max-w-6xl mx-auto px-4 flex items-center justify-between h-14">
           <div className="flex items-center gap-6">
-            <span className="font-bold text-gray-900">Núcleo Gym</span>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/logo.png" alt="Núcleo Gimnasio" className="w-8 h-8 object-contain" />
             <Link
               href="/admin/socios"
               className={`text-sm ${pathname.startsWith('/admin/socios') ? 'text-black font-semibold' : 'text-gray-700 hover:text-black'}`}

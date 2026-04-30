@@ -62,7 +62,8 @@ export default function HomePage() {
     <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center px-4">
       <div className="w-full max-w-sm">
         <div className="text-center mb-8">
-          <h1 className="text-2xl font-bold text-gray-900">Gimnasio Núcleo</h1>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/logo.png" alt="Núcleo Gimnasio" className="mx-auto mb-3 w-24 h-24 object-contain" />
           <p className="text-gray-500 text-sm mt-1">Ingresá para ver tu rutina</p>
         </div>
 
