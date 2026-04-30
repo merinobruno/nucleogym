@@ -1,0 +1,282 @@
+'use client'
+
+import { useEffect, useState } from 'react'
+import { createClient } from '@/lib/supabase'
+
+type FilaRutina = {
+  id: string
+  ejercicio_id: string | null
+  series: number | null
+  repeticiones: number | null
+  nota: string | null
+  orden: number
+  ejercicio: { nombre: string; eliminado: boolean } | null
+}
+
+type Props = { socioId: string }
+
+export default function EditorRutina({ socioId }: Props) {
+  const [dias, setDias] = useState<number[]>([])
+  const [diaActivo, setDiaActivo] = useState<number>(1)
+  const [filas, setFilas] = useState<Record<number, FilaRutina[]>>({})
+  const [ejercicios, setEjercicios] = useState<{ id: string; nombre: string }[]>([])
+  const [busqueda, setBusqueda] = useState('')
+  const [mostrarBuscador, setMostrarBuscador] = useState(false)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    loadRutina()
+    loadEjercicios()
+  }, [socioId])
+
+  async function loadRutina() {
+    const supabase = createClient()
+    const { data } = await supabase
+      .from('rutina_ejercicios')
+      .select('*, ejercicios(nombre, eliminado)')
+      .eq('socio_id', socioId)
+      .order('dia')
+      .order('orden')
+
+    if (!data) { setLoading(false); return }
+
+    const grouped: Record<number, FilaRutina[]> = {}
+    const diasSet = new Set<number>()
+
+    for (const row of data) {
+      diasSet.add(row.dia)
+      if (!grouped[row.dia]) grouped[row.dia] = []
+      grouped[row.dia].push({
+        id: row.id,
+        ejercicio_id: row.ejercicio_id,
+        series: row.series,
+        repeticiones: row.repeticiones,
+        nota: row.nota,
+        orden: row.orden,
+        ejercicio: row.ejercicios as { nombre: string; eliminado: boolean } | null,
+      })
+    }
+
+    const sortedDias = Array.from(diasSet).sort((a, b) => a - b)
+    setDias(sortedDias)
+    if (sortedDias.length > 0) setDiaActivo(sortedDias[0])
+    setFilas(grouped)
+    setLoading(false)
+  }
+
+  async function loadEjercicios() {
+    const supabase = createClient()
+    const { data } = await supabase
+      .from('ejercicios')
+      .select('id, nombre')
+      .eq('eliminado', false)
+      .order('nombre')
+    setEjercicios(data ?? [])
+  }
+
+  async function agregarDia() {
+    const nuevoDia = dias.length > 0 ? Math.max(...dias) + 1 : 1
+    setDias(prev => [...prev, nuevoDia])
+    setFilas(prev => ({ ...prev, [nuevoDia]: [] }))
+    setDiaActivo(nuevoDia)
+  }
+
+  async function agregarEjercicio(ejercicioId: string) {
+    const supabase = createClient()
+    const filasDelDia = filas[diaActivo] ?? []
+    const orden = filasDelDia.length
+
+    const { data, error } = await supabase
+      .from('rutina_ejercicios')
+      .insert({ socio_id: socioId, dia: diaActivo, ejercicio_id: ejercicioId, orden })
+      .select('*, ejercicios(nombre, eliminado)')
+      .single()
+
+    if (error || !data) return
+
+    const nuevaFila: FilaRutina = {
+      id: data.id,
+      ejercicio_id: data.ejercicio_id,
+      series: data.series,
+      repeticiones: data.repeticiones,
+      nota: data.nota,
+      orden: data.orden,
+      ejercicio: data.ejercicios as { nombre: string; eliminado: boolean } | null,
+    }
+
+    setFilas(prev => ({ ...prev, [diaActivo]: [...(prev[diaActivo] ?? []), nuevaFila] }))
+    setBusqueda('')
+    setMostrarBuscador(false)
+  }
+
+  async function eliminarFila(filaId: string) {
+    const supabase = createClient()
+    await supabase.from('rutina_ejercicios').delete().eq('id', filaId)
+    setFilas(prev => ({
+      ...prev,
+      [diaActivo]: (prev[diaActivo] ?? []).filter(f => f.id !== filaId),
+    }))
+  }
+
+  async function actualizarFila(filaId: string, campo: 'series' | 'repeticiones' | 'nota', valor: string) {
+    const supabase = createClient()
+    const parsed = campo === 'nota' ? valor || null : (valor === '' ? null : parseInt(valor))
+    await supabase.from('rutina_ejercicios').update({ [campo]: parsed }).eq('id', filaId)
+  }
+
+  const ejerciciosFiltrados = ejercicios
+    .filter(e => e.nombre.toLowerCase().includes(busqueda.toLowerCase()))
+    .slice(0, 8)
+
+  if (loading) return <p className="text-gray-500 text-sm">Cargando rutina...</p>
+
+  return (
+    <div>
+      {/* Tabs de días */}
+      <div className="flex items-center gap-2 mb-4 flex-wrap">
+        {dias.map(dia => (
+          <button
+            key={dia}
+            onClick={() => { setDiaActivo(dia); setMostrarBuscador(false); setBusqueda('') }}
+            className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+              diaActivo === dia
+                ? 'bg-black text-white'
+                : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50'
+            }`}
+          >
+            Día {dia}
+          </button>
+        ))}
+        <button
+          onClick={agregarDia}
+          className="px-4 py-2 rounded-md text-sm font-medium bg-white border border-dashed border-gray-400 text-gray-600 hover:bg-gray-50 transition-colors"
+        >
+          + Día
+        </button>
+      </div>
+
+      {dias.length === 0 ? (
+        <p className="text-gray-500 text-sm">No hay días cargados. Agregá el primero con el botón + Día.</p>
+      ) : (
+        <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+          {/* Tabla de ejercicios */}
+          {(filas[diaActivo] ?? []).length === 0 ? (
+            <p className="text-gray-500 text-sm p-4">No hay ejercicios en este día.</p>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead className="bg-gray-50 border-b border-gray-200">
+                  <tr>
+                    <th className="text-left px-4 py-3 font-semibold text-gray-700">Ejercicio</th>
+                    <th className="text-left px-4 py-3 font-semibold text-gray-700 w-20">Series</th>
+                    <th className="text-left px-4 py-3 font-semibold text-gray-700 w-20">Reps</th>
+                    <th className="text-left px-4 py-3 font-semibold text-gray-700 hidden md:table-cell">Nota</th>
+                    <th className="px-4 py-3 w-8"></th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-100">
+                  {(filas[diaActivo] ?? []).map(fila => {
+                    const eliminado = fila.ejercicio?.eliminado ?? fila.ejercicio_id === null
+                    return (
+                      <tr key={fila.id} className={eliminado ? 'bg-red-50' : ''}>
+                        <td className="px-4 py-2">
+                          {eliminado ? (
+                            <span className="text-red-500 line-through text-sm font-medium">
+                              {fila.ejercicio?.nombre ?? 'Ejercicio eliminado'}
+                            </span>
+                          ) : (
+                            <span className="text-gray-900 font-medium">{fila.ejercicio?.nombre}</span>
+                          )}
+                        </td>
+                        <td className="px-4 py-2">
+                          <input
+                            type="number"
+                            min="0"
+                            defaultValue={fila.series ?? ''}
+                            onBlur={e => actualizarFila(fila.id, 'series', e.target.value)}
+                            className="w-16 border border-gray-300 rounded px-2 py-1 text-sm text-gray-900 focus:outline-none focus:ring-1 focus:ring-black"
+                          />
+                        </td>
+                        <td className="px-4 py-2">
+                          <input
+                            type="number"
+                            min="0"
+                            defaultValue={fila.repeticiones ?? ''}
+                            onBlur={e => actualizarFila(fila.id, 'repeticiones', e.target.value)}
+                            className="w-16 border border-gray-300 rounded px-2 py-1 text-sm text-gray-900 focus:outline-none focus:ring-1 focus:ring-black"
+                          />
+                        </td>
+                        <td className="px-4 py-2 hidden md:table-cell">
+                          <input
+                            type="text"
+                            defaultValue={fila.nota ?? ''}
+                            onBlur={e => actualizarFila(fila.id, 'nota', e.target.value)}
+                            placeholder="Nota..."
+                            className="w-full border border-gray-300 rounded px-2 py-1 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-black"
+                          />
+                        </td>
+                        <td className="px-4 py-2 text-center">
+                          <button
+                            onClick={() => eliminarFila(fila.id)}
+                            className="text-gray-400 hover:text-red-600 text-xl leading-none font-light"
+                          >
+                            ×
+                          </button>
+                        </td>
+                      </tr>
+                    )
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
+
+          {/* Buscador para agregar ejercicio */}
+          <div className="border-t border-gray-200 p-3">
+            {mostrarBuscador ? (
+              <div className="relative">
+                <input
+                  type="text"
+                  value={busqueda}
+                  onChange={e => setBusqueda(e.target.value)}
+                  placeholder="Buscar ejercicio..."
+                  autoFocus
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-black"
+                />
+                {ejerciciosFiltrados.length > 0 && (
+                  <div className="absolute z-10 mt-1 w-full bg-white border border-gray-200 rounded-md shadow-lg max-h-48 overflow-y-auto">
+                    {ejerciciosFiltrados.map(e => (
+                      <button
+                        key={e.id}
+                        onClick={() => agregarEjercicio(e.id)}
+                        className="w-full text-left px-4 py-2 text-sm text-gray-900 hover:bg-gray-50"
+                      >
+                        {e.nombre}
+                      </button>
+                    ))}
+                  </div>
+                )}
+                {busqueda && ejerciciosFiltrados.length === 0 && (
+                  <p className="text-sm text-gray-500 mt-2">No se encontraron ejercicios.</p>
+                )}
+                <button
+                  onClick={() => { setMostrarBuscador(false); setBusqueda('') }}
+                  className="mt-2 text-sm text-gray-500 hover:text-gray-800"
+                >
+                  Cancelar
+                </button>
+              </div>
+            ) : (
+              <button
+                onClick={() => setMostrarBuscador(true)}
+                className="text-sm text-gray-700 hover:text-black font-medium"
+              >
+                + Agregar ejercicio
+              </button>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
