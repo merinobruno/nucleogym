@@ -4,34 +4,33 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase'
 
-export default function NuevoEjercicioPage() {
+export default function NuevoSocioPage() {
   const router = useRouter()
   const [nombre, setNombre] = useState('')
-  const [descripcion, setDescripcion] = useState('')
-  const [imagenUrl, setImagenUrl] = useState('')
+  const [dni, setDni] = useState('')
+  const [clave, setClave] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    if (!nombre.trim()) return
     setLoading(true)
     setError('')
 
     const supabase = createClient()
-    const { error } = await supabase.from('ejercicios').insert({
+    const { error } = await supabase.from('socios').insert({
       nombre: nombre.trim(),
-      descripcion: descripcion.trim() || null,
-      imagen_url: imagenUrl.trim() || null,
+      dni: dni.trim(),
+      clave: clave.trim(),
     })
 
     if (error) {
-      setError('Error al guardar. Intentá de nuevo.')
+      setError(error.code === '23505' ? 'Ya existe un socio con ese DNI.' : 'Error al guardar. Intentá de nuevo.')
       setLoading(false)
       return
     }
 
-    router.push('/admin/ejercicios')
+    router.push('/admin/socios')
   }
 
   return (
@@ -40,7 +39,7 @@ export default function NuevoEjercicioPage() {
         <button onClick={() => router.back()} className="text-gray-600 hover:text-gray-900">
           ← Volver
         </button>
-        <h1 className="text-xl font-bold text-gray-900">Nuevo ejercicio</h1>
+        <h1 className="text-xl font-bold text-gray-900">Nuevo socio</h1>
       </div>
 
       <form onSubmit={handleSubmit} className="bg-white rounded-lg border border-gray-200 p-6 space-y-4">
@@ -57,24 +56,26 @@ export default function NuevoEjercicioPage() {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Descripción</label>
-          <textarea
-            value={descripcion}
-            onChange={e => setDescripcion(e.target.value)}
-            rows={3}
-            className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-black resize-none"
+          <label className="block text-sm font-medium text-gray-700 mb-1">DNI *</label>
+          <input
+            type="text"
+            value={dni}
+            onChange={e => setDni(e.target.value)}
+            required
+            className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-black"
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">URL de imagen</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Clave *</label>
           <input
-            type="url"
-            value={imagenUrl}
-            onChange={e => setImagenUrl(e.target.value)}
-            placeholder="https://..."
+            type="text"
+            value={clave}
+            onChange={e => setClave(e.target.value)}
+            required
             className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-black"
           />
+          <p className="text-xs text-gray-500 mt-1">El socio usa esta clave para ver su rutina.</p>
         </div>
 
         {error && <p className="text-sm text-red-600">{error}</p>}
@@ -90,7 +91,7 @@ export default function NuevoEjercicioPage() {
           <button
             type="button"
             onClick={() => router.back()}
-            className="text-sm px-4 py-2 rounded-md border border-gray-300 hover:bg-gray-50 transition-colors"
+            className="text-sm px-4 py-2 rounded-md border border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors"
           >
             Cancelar
           </button>

@@ -70,7 +70,7 @@ export default function EditarEjercicioPage() {
             onChange={e => setNombre(e.target.value)}
             required
             autoFocus
-            className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-black"
+            className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-black"
           />
         </div>
 
@@ -80,7 +80,7 @@ export default function EditarEjercicioPage() {
             value={descripcion}
             onChange={e => setDescripcion(e.target.value)}
             rows={3}
-            className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-black resize-none"
+            className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-black resize-none"
           />
         </div>
 
@@ -91,7 +91,7 @@ export default function EditarEjercicioPage() {
             value={imagenUrl}
             onChange={e => setImagenUrl(e.target.value)}
             placeholder="https://..."
-            className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-black"
+            className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-black"
           />
         </div>
 
