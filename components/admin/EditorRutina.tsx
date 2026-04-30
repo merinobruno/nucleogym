@@ -157,83 +157,85 @@ export default function EditorRutina({ socioId }: Props) {
       {dias.length === 0 ? (
         <p className="text-gray-500 text-sm">No hay días cargados. Agregá el primero con el botón + Día.</p>
       ) : (
-        <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
-          {/* Tabla de ejercicios */}
-          {(filas[diaActivo] ?? []).length === 0 ? (
-            <p className="text-gray-500 text-sm p-4">No hay ejercicios en este día.</p>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead className="bg-gray-50 border-b border-gray-200">
-                  <tr>
-                    <th className="text-left px-4 py-3 font-semibold text-gray-700">Ejercicio</th>
-                    <th className="text-left px-4 py-3 font-semibold text-gray-700 w-20">Series</th>
-                    <th className="text-left px-4 py-3 font-semibold text-gray-700 w-20">Reps</th>
-                    <th className="text-left px-4 py-3 font-semibold text-gray-700 hidden md:table-cell">Nota</th>
-                    <th className="px-4 py-3 w-8"></th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-100">
-                  {(filas[diaActivo] ?? []).map(fila => {
-                    const eliminado = fila.ejercicio?.eliminado ?? fila.ejercicio_id === null
-                    return (
-                      <tr key={fila.id} className={eliminado ? 'bg-red-50' : ''}>
-                        <td className="px-4 py-2">
-                          {eliminado ? (
-                            <span className="text-red-500 line-through text-sm font-medium">
-                              {fila.ejercicio?.nombre ?? 'Ejercicio eliminado'}
-                            </span>
-                          ) : (
-                            <span className="text-gray-900 font-medium">{fila.ejercicio?.nombre}</span>
-                          )}
-                        </td>
-                        <td className="px-4 py-2">
-                          <input
-                            type="number"
-                            min="0"
-                            defaultValue={fila.series ?? ''}
-                            onBlur={e => actualizarFila(fila.id, 'series', e.target.value)}
-                            className="w-16 border border-gray-300 rounded px-2 py-1 text-sm text-gray-900 focus:outline-none focus:ring-1 focus:ring-black"
-                          />
-                        </td>
-                        <td className="px-4 py-2">
-                          <input
-                            type="number"
-                            min="0"
-                            defaultValue={fila.repeticiones ?? ''}
-                            onBlur={e => actualizarFila(fila.id, 'repeticiones', e.target.value)}
-                            className="w-16 border border-gray-300 rounded px-2 py-1 text-sm text-gray-900 focus:outline-none focus:ring-1 focus:ring-black"
-                          />
-                        </td>
-                        <td className="px-4 py-2 hidden md:table-cell">
-                          <input
-                            type="text"
-                            defaultValue={fila.nota ?? ''}
-                            onBlur={e => actualizarFila(fila.id, 'nota', e.target.value)}
-                            placeholder="Nota..."
-                            className="w-full border border-gray-300 rounded px-2 py-1 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-black"
-                          />
-                        </td>
-                        <td className="px-4 py-2 text-center">
-                          <button
-                            onClick={() => eliminarFila(fila.id)}
-                            className="text-gray-400 hover:text-red-600 text-xl leading-none font-light"
-                          >
-                            ×
-                          </button>
-                        </td>
-                      </tr>
-                    )
-                  })}
-                </tbody>
-              </table>
-            </div>
-          )}
+        <div className="rounded-lg border border-gray-200">
+          {/* Tabla — overflow-hidden acá para que el thead respete el border-radius */}
+          <div className="bg-white rounded-t-lg overflow-hidden">
+            {(filas[diaActivo] ?? []).length === 0 ? (
+              <p className="text-gray-500 text-sm p-4">No hay ejercicios en este día.</p>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead className="bg-gray-50 border-b border-gray-200">
+                    <tr>
+                      <th className="text-left px-4 py-3 font-semibold text-gray-700">Ejercicio</th>
+                      <th className="text-left px-4 py-3 font-semibold text-gray-700 w-20">Series</th>
+                      <th className="text-left px-4 py-3 font-semibold text-gray-700 w-20">Reps</th>
+                      <th className="text-left px-4 py-3 font-semibold text-gray-700 hidden md:table-cell">Nota</th>
+                      <th className="px-4 py-3 w-8"></th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-100">
+                    {(filas[diaActivo] ?? []).map(fila => {
+                      const eliminado = fila.ejercicio?.eliminado ?? fila.ejercicio_id === null
+                      return (
+                        <tr key={fila.id} className={eliminado ? 'bg-red-50' : ''}>
+                          <td className="px-4 py-2">
+                            {eliminado ? (
+                              <span className="text-red-500 line-through text-sm font-medium">
+                                {fila.ejercicio?.nombre ?? 'Ejercicio eliminado'}
+                              </span>
+                            ) : (
+                              <span className="text-gray-900 font-medium">{fila.ejercicio?.nombre}</span>
+                            )}
+                          </td>
+                          <td className="px-4 py-2">
+                            <input
+                              type="number"
+                              min="0"
+                              defaultValue={fila.series ?? ''}
+                              onBlur={e => actualizarFila(fila.id, 'series', e.target.value)}
+                              className="w-16 border border-gray-300 rounded px-2 py-1 text-sm text-gray-900 focus:outline-none focus:ring-1 focus:ring-black"
+                            />
+                          </td>
+                          <td className="px-4 py-2">
+                            <input
+                              type="number"
+                              min="0"
+                              defaultValue={fila.repeticiones ?? ''}
+                              onBlur={e => actualizarFila(fila.id, 'repeticiones', e.target.value)}
+                              className="w-16 border border-gray-300 rounded px-2 py-1 text-sm text-gray-900 focus:outline-none focus:ring-1 focus:ring-black"
+                            />
+                          </td>
+                          <td className="px-4 py-2 hidden md:table-cell">
+                            <input
+                              type="text"
+                              defaultValue={fila.nota ?? ''}
+                              onBlur={e => actualizarFila(fila.id, 'nota', e.target.value)}
+                              placeholder="Nota..."
+                              className="w-full border border-gray-300 rounded px-2 py-1 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-black"
+                            />
+                          </td>
+                          <td className="px-4 py-2 text-center">
+                            <button
+                              onClick={() => eliminarFila(fila.id)}
+                              className="text-gray-400 hover:text-red-600 text-xl leading-none font-light"
+                            >
+                              ×
+                            </button>
+                          </td>
+                        </tr>
+                      )
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
 
-          {/* Buscador para agregar ejercicio */}
-          <div className="border-t border-gray-200 p-3">
+          {/* Buscador — fuera del overflow-hidden para que el dropdown no se recorte */}
+          <div className="bg-white rounded-b-lg border-t border-gray-200 p-3 relative">
             {mostrarBuscador ? (
-              <div className="relative">
+              <div>
                 <input
                   type="text"
                   value={busqueda}
@@ -243,7 +245,7 @@ export default function EditorRutina({ socioId }: Props) {
                   className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-black"
                 />
                 {ejerciciosFiltrados.length > 0 && (
-                  <div className="absolute z-10 mt-1 w-full bg-white border border-gray-200 rounded-md shadow-lg max-h-48 overflow-y-auto">
+                  <div className="absolute z-10 left-3 right-3 mt-1 bg-white border border-gray-200 rounded-md shadow-lg max-h-60 overflow-y-auto">
                     {ejerciciosFiltrados.map(e => (
                       <button
                         key={e.id}
