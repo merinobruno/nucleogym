@@ -119,15 +119,6 @@ export default function RutinaPage() {
             </div>
           )}
 
-          {ej?.imagen_url && !eliminado && (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={ej.imagen_url}
-              alt={ej.nombre}
-              className="w-full rounded-xl object-cover mb-4 max-h-52"
-            />
-          )}
-
           <h1 className={`text-2xl font-bold mb-5 ${eliminado ? 'text-red-500 line-through' : 'text-gray-900'}`}>
             {ej?.nombre ?? 'Ejercicio eliminado'}
           </h1>
