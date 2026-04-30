@@ -81,6 +81,20 @@ export default function EditorRutina({ socioId }: Props) {
     setDiaActivo(nuevoDia)
   }
 
+  async function eliminarDia(dia: number) {
+    const supabase = createClient()
+    await supabase.from('rutina_ejercicios').delete().eq('socio_id', socioId).eq('dia', dia)
+
+    const diasRestantes = dias.filter(d => d !== dia)
+    setDias(diasRestantes)
+    setFilas(prev => {
+      const next = { ...prev }
+      delete next[dia]
+      return next
+    })
+    if (diaActivo === dia) setDiaActivo(diasRestantes[0] ?? 1)
+  }
+
   async function agregarEjercicio(ejercicioId: string) {
     const supabase = createClient()
     const filasDelDia = filas[diaActivo] ?? []
@@ -134,17 +148,28 @@ export default function EditorRutina({ socioId }: Props) {
       {/* Tabs de días */}
       <div className="flex items-center gap-2 mb-4 flex-wrap">
         {dias.map(dia => (
-          <button
+          <div
             key={dia}
-            onClick={() => { setDiaActivo(dia); setMostrarBuscador(false); setBusqueda('') }}
-            className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+            className={`flex items-center gap-1 rounded-md text-sm font-medium transition-colors ${
               diaActivo === dia
                 ? 'bg-black text-white'
                 : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50'
             }`}
           >
-            Día {dia}
-          </button>
+            <button
+              onClick={() => { setDiaActivo(dia); setMostrarBuscador(false); setBusqueda('') }}
+              className="px-4 py-2"
+            >
+              Día {dia}
+            </button>
+            <button
+              onClick={() => eliminarDia(dia)}
+              className={`pr-2 leading-none hover:opacity-60 transition-opacity`}
+              title="Eliminar día"
+            >
+              ×
+            </button>
+          </div>
         ))}
         <button
           onClick={agregarDia}
