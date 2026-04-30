@@ -126,7 +126,6 @@ export default function EditorRutina({ socioId }: Props) {
 
   const ejerciciosFiltrados = ejercicios
     .filter(e => e.nombre.toLowerCase().includes(busqueda.toLowerCase()))
-    .slice(0, 8)
 
   if (loading) return <p className="text-gray-500 text-sm">Cargando rutina...</p>
 
