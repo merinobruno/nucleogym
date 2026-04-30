@@ -63,6 +63,21 @@ export default function RutinaPage() {
     loadData()
   }, [socioId])
 
+  useEffect(() => {
+    function handlePop() { setSeleccionada(null) }
+    window.addEventListener('popstate', handlePop)
+    return () => window.removeEventListener('popstate', handlePop)
+  }, [])
+
+  function verEjercicio(fila: FilaRutina) {
+    setSeleccionada(fila)
+    window.history.pushState({ ejercicio: fila.id }, '')
+  }
+
+  function volverAlListado() {
+    window.history.back()
+  }
+
   async function loadData() {
     const supabase = createClient()
 
@@ -136,7 +151,7 @@ export default function RutinaPage() {
         <div className="max-w-lg mx-auto px-4 py-6">
           <div className="flex items-center justify-between mb-6">
             <button
-              onClick={() => setSeleccionada(null)}
+              onClick={volverAlListado}
               className={`text-sm ${muted} hover:${headingCls}`}
             >
               ← Volver
@@ -256,7 +271,7 @@ export default function RutinaPage() {
                 return (
                   <button
                     key={fila.id}
-                    onClick={() => setSeleccionada(fila)}
+                    onClick={() => verEjercicio(fila)}
                     className={`w-full text-left rounded-xl border p-4 flex items-center justify-between transition-colors active:scale-[0.99] ${
                       eliminado
                         ? dark ? 'bg-red-900/20 border-red-800' : 'bg-red-50 border-red-200'
