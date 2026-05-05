@@ -152,7 +152,7 @@ export default function EditorRutina({ socioId }: Props) {
             key={dia}
             className={`flex items-center gap-1 rounded-md text-sm font-medium transition-colors ${
               diaActivo === dia
-                ? 'bg-black text-white'
+                ? 'bg-green-600 text-white'
                 : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50'
             }`}
           >
@@ -219,7 +219,7 @@ export default function EditorRutina({ socioId }: Props) {
                               min="0"
                               defaultValue={fila.series ?? ''}
                               onBlur={e => actualizarFila(fila.id, 'series', e.target.value)}
-                              className="w-16 border border-gray-300 rounded px-2 py-1 text-sm text-gray-900 focus:outline-none focus:ring-1 focus:ring-black"
+                              className="w-16 border border-gray-300 rounded px-2 py-1 text-sm text-gray-900 focus:outline-none focus:ring-1 focus:ring-green-500"
                             />
                           </td>
                           <td className="px-4 py-2">
@@ -228,7 +228,7 @@ export default function EditorRutina({ socioId }: Props) {
                               min="0"
                               defaultValue={fila.repeticiones ?? ''}
                               onBlur={e => actualizarFila(fila.id, 'repeticiones', e.target.value)}
-                              className="w-16 border border-gray-300 rounded px-2 py-1 text-sm text-gray-900 focus:outline-none focus:ring-1 focus:ring-black"
+                              className="w-16 border border-gray-300 rounded px-2 py-1 text-sm text-gray-900 focus:outline-none focus:ring-1 focus:ring-green-500"
                             />
                           </td>
                           <td className="px-4 py-2 hidden md:table-cell">
@@ -237,7 +237,7 @@ export default function EditorRutina({ socioId }: Props) {
                               defaultValue={fila.nota ?? ''}
                               onBlur={e => actualizarFila(fila.id, 'nota', e.target.value)}
                               placeholder="Nota..."
-                              className="w-full border border-gray-300 rounded px-2 py-1 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-black"
+                              className="w-full border border-gray-300 rounded px-2 py-1 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-green-500"
                             />
                           </td>
                           <td className="px-4 py-2 text-center">
@@ -267,7 +267,7 @@ export default function EditorRutina({ socioId }: Props) {
                   onChange={e => setBusqueda(e.target.value)}
                   placeholder="Buscar ejercicio..."
                   autoFocus
-                  className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-black"
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-green-500"
                 />
                 {ejerciciosFiltrados.length > 0 && (
                   <div className="absolute z-10 left-3 right-3 mt-1 bg-white border border-gray-200 rounded-md shadow-lg max-h-60 overflow-y-auto">
@@ -295,7 +295,7 @@ export default function EditorRutina({ socioId }: Props) {
             ) : (
               <button
                 onClick={() => setMostrarBuscador(true)}
-                className="text-sm text-gray-700 hover:text-black font-medium"
+                className="text-sm text-gray-700 hover:text-green-600 font-medium"
               >
                 + Agregar ejercicio
               </button>

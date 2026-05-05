@@ -85,7 +85,7 @@ export default function HomePage() {
   const labelCls = dark ? 'text-gray-300' : 'text-gray-700'
   const inputCls = dark
     ? 'bg-gray-700 border-gray-600 text-white placeholder:text-gray-500 focus:ring-white'
-    : 'border-gray-300 text-gray-900 focus:ring-black'
+    : 'border-gray-300 text-gray-900 focus:ring-green-500'
   const muted = dark ? 'text-gray-400' : 'text-gray-500'
   const headingCls = dark ? 'text-white' : 'text-gray-900'
   const toggleCls = dark ? 'text-gray-400 hover:text-white' : 'text-gray-500 hover:text-gray-800'
@@ -126,7 +126,7 @@ export default function HomePage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-black text-white py-3 rounded-lg font-medium text-base hover:bg-gray-800 disabled:opacity-50 transition-colors"
+              className="w-full bg-green-600 text-white py-3 rounded-lg font-medium text-base hover:bg-green-700 disabled:opacity-50 transition-colors"
             >
               {loading ? 'Buscando...' : 'Continuar'}
             </button>
@@ -151,7 +151,7 @@ export default function HomePage() {
             {error && <p className="text-sm text-red-500">{error}</p>}
             <button
               type="submit"
-              className="w-full bg-black text-white py-3 rounded-lg font-medium text-base hover:bg-gray-800 transition-colors"
+              className="w-full bg-green-600 text-white py-3 rounded-lg font-medium text-base hover:bg-green-700 transition-colors"
             >
               Ver mi rutina
             </button>

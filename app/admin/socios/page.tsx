@@ -52,7 +52,7 @@ export default function SociosPage() {
         <h1 className="text-xl font-bold text-gray-900">Socios</h1>
         <Link
           href="/admin/socios/nuevo"
-          className="bg-black text-white text-sm px-4 py-2 rounded-md hover:bg-gray-800 transition-colors"
+          className="bg-green-600 text-white text-sm px-4 py-2 rounded-md hover:bg-green-700 transition-colors"
         >
           + Nuevo socio
         </Link>
@@ -77,7 +77,7 @@ export default function SociosPage() {
           placeholder="Buscar por nombre o DNI..."
           value={busqueda}
           onChange={e => setBusqueda(e.target.value)}
-          className="border border-gray-300 rounded-md px-3 py-1.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-black flex-1 sm:max-w-xs"
+          className="border border-gray-300 rounded-md px-3 py-1.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-green-500 flex-1 sm:max-w-xs"
         />
       </div>
 
@@ -114,7 +114,7 @@ export default function SociosPage() {
                     <td className="px-4 py-3 text-right">
                       <Link
                         href={`/admin/socios/${s.id}`}
-                        className="text-gray-700 hover:text-black underline"
+                        className="text-gray-700 hover:text-green-600 underline"
                       >
                         Ver perfil
                       </Link>

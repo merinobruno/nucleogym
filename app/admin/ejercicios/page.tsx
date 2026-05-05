@@ -53,7 +53,7 @@ export default function EjerciciosPage() {
         <h1 className="text-xl font-bold text-gray-900">Ejercicios</h1>
         <Link
           href="/admin/ejercicios/nuevo"
-          className="bg-black text-white text-sm px-4 py-2 rounded-md hover:bg-gray-800 transition-colors"
+          className="bg-green-600 text-white text-sm px-4 py-2 rounded-md hover:bg-green-700 transition-colors"
         >
           + Nuevo ejercicio
         </Link>
@@ -85,7 +85,7 @@ export default function EjerciciosPage() {
                       <td className="px-4 py-3 text-right space-x-2 whitespace-nowrap">
                         <Link
                           href={`/admin/ejercicios/${e.id}`}
-                          className="text-gray-700 hover:text-black underline"
+                          className="text-gray-700 hover:text-green-600 underline"
                         >
                           Editar
                         </Link>
@@ -115,7 +115,7 @@ export default function EjerciciosPage() {
                         <td className="px-4 py-3 text-right">
                           <button
                             onClick={() => handleRestaurar(e.id)}
-                            className="text-gray-700 hover:text-black underline text-sm"
+                            className="text-gray-700 hover:text-green-600 underline text-sm"
                           >
                             Restaurar
                           </button>

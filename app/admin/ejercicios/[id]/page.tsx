@@ -70,7 +70,7 @@ export default function EditarEjercicioPage() {
             onChange={e => setNombre(e.target.value)}
             required
             autoFocus
-            className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-black"
+            className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-green-500"
           />
         </div>
 
@@ -80,7 +80,7 @@ export default function EditarEjercicioPage() {
             value={descripcion}
             onChange={e => setDescripcion(e.target.value)}
             rows={3}
-            className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-black resize-none"
+            className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-green-500 resize-none"
           />
         </div>
 
@@ -91,7 +91,7 @@ export default function EditarEjercicioPage() {
             value={imagenUrl}
             onChange={e => setImagenUrl(e.target.value)}
             placeholder="https://..."
-            className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-black"
+            className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-green-500"
           />
         </div>
 
@@ -101,7 +101,7 @@ export default function EditarEjercicioPage() {
           <button
             type="submit"
             disabled={saving}
-            className="bg-black text-white text-sm px-4 py-2 rounded-md hover:bg-gray-800 disabled:opacity-50 transition-colors"
+            className="bg-green-600 text-white text-sm px-4 py-2 rounded-md hover:bg-green-700 disabled:opacity-50 transition-colors"
           >
             {saving ? 'Guardando...' : 'Guardar cambios'}
           </button>

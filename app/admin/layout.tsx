@@ -49,20 +49,20 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             <img src="/logo.png" alt="Núcleo Gimnasio" className="w-8 h-8 object-contain" />
             <Link
               href="/admin/socios"
-              className={`text-sm ${pathname.startsWith('/admin/socios') ? 'text-black font-semibold' : 'text-gray-700 hover:text-black'}`}
+              className={`text-sm ${pathname.startsWith('/admin/socios') ? 'text-green-600 font-semibold' : 'text-gray-700 hover:text-green-600'}`}
             >
               Socios
             </Link>
             <Link
               href="/admin/ejercicios"
-              className={`text-sm ${pathname.startsWith('/admin/ejercicios') ? 'text-black font-semibold' : 'text-gray-700 hover:text-black'}`}
+              className={`text-sm ${pathname.startsWith('/admin/ejercicios') ? 'text-green-600 font-semibold' : 'text-gray-700 hover:text-green-600'}`}
             >
               Ejercicios
             </Link>
           </div>
           <button
             onClick={handleLogout}
-            className="text-sm text-gray-700 hover:text-black"
+            className="text-sm text-gray-700 hover:text-green-600"
           >
             Salir
           </button>

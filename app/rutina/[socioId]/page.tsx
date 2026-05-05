@@ -252,7 +252,7 @@ export default function RutinaPage() {
                   key={dia}
                   onClick={() => setDiaActivo(dia)}
                   className={`flex-shrink-0 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                    diaActivo === dia ? 'bg-black text-white' : tabInactive
+                    diaActivo === dia ? 'bg-green-600 text-white' : tabInactive
                   }`}
                 >
                   Día {dia}

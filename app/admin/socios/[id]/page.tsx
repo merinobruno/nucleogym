@@ -95,7 +95,7 @@ export default function DetalleSocioPage() {
                 value={nombre}
                 onChange={e => setNombre(e.target.value)}
                 required
-                className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-black"
+                className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-green-500"
               />
             </div>
             <div>
@@ -105,7 +105,7 @@ export default function DetalleSocioPage() {
                 value={dni}
                 onChange={e => setDni(e.target.value)}
                 required
-                className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-black"
+                className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-green-500"
               />
             </div>
             <div>
@@ -115,14 +115,14 @@ export default function DetalleSocioPage() {
                 value={clave}
                 onChange={e => setClave(e.target.value)}
                 required
-                className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-black"
+                className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-green-500"
               />
             </div>
             <div className="flex items-center gap-3">
               <button
                 type="button"
                 onClick={() => setActivo(v => !v)}
-                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${activo ? 'bg-black' : 'bg-gray-300'}`}
+                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${activo ? 'bg-green-600' : 'bg-gray-300'}`}
               >
                 <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${activo ? 'translate-x-6' : 'translate-x-1'}`} />
               </button>
@@ -135,7 +135,7 @@ export default function DetalleSocioPage() {
               <button
                 type="submit"
                 disabled={saving}
-                className="bg-black text-white text-sm px-4 py-2 rounded-md hover:bg-gray-800 disabled:opacity-50 transition-colors"
+                className="bg-green-600 text-white text-sm px-4 py-2 rounded-md hover:bg-green-700 disabled:opacity-50 transition-colors"
               >
                 {saving ? 'Guardando...' : 'Guardar'}
               </button>
