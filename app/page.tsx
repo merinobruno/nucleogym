@@ -113,8 +113,8 @@ export default function HomePage() {
   }
 
   const palette = dark
-    ? { bg: '#0a0a0a', surface: '#171717', border: '#262626', text: '#fafafa', subtext: '#a3a3a3', inputBg: '#0a0a0a' }
-    : { bg: '#fafafa', surface: '#ffffff', border: '#e5e5e5', text: '#0a0a0a', subtext: '#737373', inputBg: '#ffffff' }
+    ? { bg: '#0a0a0a', surface: '#171717', border: '#262626', text: '#fafafa', subtext: '#a3a3a3', muted: '#525252', inputBg: '#0a0a0a' }
+    : { bg: '#fafafa', surface: '#ffffff', border: '#e5e5e5', text: '#0a0a0a', subtext: '#737373', muted: '#a3a3a3', inputBg: '#ffffff' }
 
   return (
     <div style={{
@@ -265,8 +265,20 @@ export default function HomePage() {
       </div>
 
       {/* Footer */}
-      <div style={{ textAlign: 'center', padding: '16px 24px 24px', fontSize: 11, color: palette.subtext, letterSpacing: '0.04em' }}>
-        ¿Olvidaste tu clave? Consultá en recepción.
+      <div style={{ textAlign: 'center', padding: '16px 24px 24px', display: 'flex', flexDirection: 'column', gap: 8, alignItems: 'center' }}>
+        <div style={{ fontSize: 11, color: palette.subtext, letterSpacing: '0.04em' }}>
+          ¿Olvidaste tu clave? Consultá en recepción.
+        </div>
+        <a
+          href="/admin/login"
+          style={{
+            fontSize: 11, color: palette.muted,
+            textDecoration: 'none',
+            letterSpacing: '0.04em',
+          }}
+        >
+          Soy entrenador →
+        </a>
       </div>
     </div>
   )
