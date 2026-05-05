@@ -1,0 +1,21 @@
+name: DB Backup
+
+on:
+  schedule:
+    - cron: '0 6 * * *' # 3am Argentina (UTC-3)
+  workflow_dispatch: # permite correrlo manualmente desde GitHub
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Backup base de datos
+        run: pg_dump "${{ secrets.DATABASE_URL }}" > backup.sql
+
+      - name: Guardar backup
+        uses: actions/upload-artifact@v4
+        with:
+          name: backup-${{ github.run_id }}
+          path: backup.sql
+          retention-days: 30
