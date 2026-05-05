@@ -11,7 +11,7 @@ export default function LoginPage() {
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
-  async function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
     setLoading(true)
     setError('')
@@ -30,17 +30,25 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
       <div className="w-full max-w-sm">
         <div className="mb-8 text-center">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/logo.png" alt="Núcleo Gimnasio" className="mx-auto mb-3 w-20 h-20 object-contain" />
-          <p className="text-sm text-gray-500">Panel del entrenador</p>
+          <img src="/logo.png" alt="Núcleo Gimnasio" className="mx-auto mb-4 w-20 h-20 object-contain" />
+          <p className="text-xs font-bold tracking-widest uppercase text-green-600 mb-3">
+            Panel del entrenador
+          </p>
+          <h1 className="text-2xl font-extrabold text-gray-900 tracking-tight mb-1">
+            Iniciá sesión
+          </h1>
+          <p className="text-sm text-gray-500">
+            Gestioná socios, rutinas y tu biblioteca de ejercicios.
+          </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="bg-white shadow rounded-lg p-6 space-y-4">
+        <form onSubmit={handleSubmit} className="bg-white border border-gray-200 rounded-2xl p-6 space-y-4 shadow-sm">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-xs font-semibold uppercase tracking-wider text-gray-500 mb-1.5">
               Email
             </label>
             <input
@@ -49,12 +57,12 @@ export default function LoginPage() {
               onChange={e => setEmail(e.target.value)}
               required
               autoFocus
-              className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-green-500"
+              className="w-full border border-gray-200 rounded-xl px-4 py-3 text-base text-gray-900 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-xs font-semibold uppercase tracking-wider text-gray-500 mb-1.5">
               Contraseña
             </label>
             <input
@@ -62,7 +70,7 @@ export default function LoginPage() {
               value={password}
               onChange={e => setPassword(e.target.value)}
               required
-              className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-green-500"
+              className="w-full border border-gray-200 rounded-xl px-4 py-3 text-base text-gray-900 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition"
             />
           </div>
 
@@ -73,13 +81,19 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-green-600 text-white rounded-md py-2 text-sm font-medium hover:bg-green-700 disabled:opacity-50 transition-colors"
+            className="w-full bg-green-600 text-white rounded-xl py-3 text-sm font-semibold hover:bg-green-700 disabled:opacity-50 transition-colors"
           >
             {loading ? 'Ingresando...' : 'Ingresar'}
           </button>
+
+          <div className="text-center">
+            <span className="text-sm text-green-600 cursor-pointer hover:text-green-700 font-medium">
+              ¿Olvidaste tu contraseña?
+            </span>
+          </div>
         </form>
 
-        <p className="mt-8 text-xs text-gray-400 text-center">
+        <p className="mt-6 text-xs text-gray-400 text-center">
           <a href="/" className="underline hover:text-gray-600">
             ← Volver al inicio
           </a>

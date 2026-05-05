@@ -9,7 +9,6 @@ type Ejercicio = {
   id: string
   nombre: string
   descripcion: string | null
-  imagen_url: string | null
   eliminado: boolean
 }
 
@@ -23,9 +22,18 @@ type FilaRutina = {
   ejercicio: Ejercicio | null
 }
 
+type Palette = {
+  bg: string; surface: string; surfaceAlt: string
+  border: string; borderSoft: string
+  text: string; subtext: string; muted: string
+  accent: string; accentSoft: string
+  amberBg: string; amberText: string
+  redBg: string; redText: string
+}
+
 function SunIcon() {
   return (
-    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
       <circle cx="12" cy="12" r="5"/>
       <line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/>
       <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
@@ -37,9 +45,208 @@ function SunIcon() {
 
 function MoonIcon() {
   return (
-    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
       <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
     </svg>
+  )
+}
+
+function ChevronDownIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+      <polyline points="6 9 12 15 18 9"/>
+    </svg>
+  )
+}
+
+function ExitIcon() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+      <polyline points="16 17 21 12 16 7"/>
+      <line x1="21" y1="12" x2="9" y2="12"/>
+    </svg>
+  )
+}
+
+function DumbbellIcon() {
+  return (
+    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M6 4v16M18 4v16M6 9h12M6 15h12M3 7h3M18 7h3M3 17h3M18 17h3"/>
+    </svg>
+  )
+}
+
+function NoteIcon() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+      <polyline points="14 2 14 8 20 8"/>
+      <line x1="16" y1="13" x2="8" y2="13"/>
+      <line x1="16" y1="17" x2="8" y2="17"/>
+    </svg>
+  )
+}
+
+function AlertIcon() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="12" r="10"/>
+      <line x1="12" y1="8" x2="12" y2="12"/>
+      <line x1="12" y1="16" x2="12.01" y2="16"/>
+    </svg>
+  )
+}
+
+function StatBox({ label, value, palette }: { label: string; value: number | null; palette: Palette }) {
+  return (
+    <div style={{ background: palette.surfaceAlt, borderRadius: 10, padding: '10px 12px' }}>
+      <div style={{ fontSize: 9, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase' as const, color: palette.muted }}>
+        {label}
+      </div>
+      <div style={{ fontSize: 22, fontWeight: 700, color: palette.text, letterSpacing: '-0.01em', marginTop: 2, fontVariantNumeric: 'tabular-nums' as const }}>
+        {value ?? '—'}
+      </div>
+    </div>
+  )
+}
+
+function ExerciseCard({ fila, idx, expanded, onToggle, palette }: {
+  fila: FilaRutina; idx: number; expanded: boolean; onToggle: () => void; palette: Palette
+}) {
+  const eliminado = fila.ejercicio?.eliminado ?? fila.ejercicio_id === null
+  const nombre = fila.ejercicio?.nombre ?? 'Ejercicio eliminado'
+
+  return (
+    <div style={{
+      background: palette.surface,
+      border: `1px solid ${palette.border}`,
+      borderRadius: 14,
+      overflow: 'hidden',
+      transition: 'border-color .15s',
+    }}>
+      <button
+        onClick={onToggle}
+        style={{
+          width: '100%', textAlign: 'left',
+          background: 'transparent', border: 'none',
+          padding: '14px',
+          display: 'flex', alignItems: 'center', gap: 12,
+          cursor: 'pointer', color: palette.text,
+        }}
+      >
+        <div style={{
+          width: 30, height: 30, borderRadius: 8, flexShrink: 0,
+          background: eliminado ? palette.redBg : palette.accentSoft,
+          color: eliminado ? palette.redText : palette.accent,
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          fontSize: 12, fontWeight: 700, fontVariantNumeric: 'tabular-nums' as const,
+        }}>
+          {String(idx).padStart(2, '0')}
+        </div>
+
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{
+            fontSize: 15, fontWeight: 700, letterSpacing: '-0.01em',
+            textDecoration: eliminado ? 'line-through' : 'none',
+            color: eliminado ? palette.redText : palette.text,
+            whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
+          }}>
+            {nombre}
+          </div>
+          <div style={{ fontSize: 12, color: palette.subtext, marginTop: 2 }}>
+            {eliminado ? (
+              <span style={{ color: palette.redText, fontWeight: 600 }}>Consultar al entrenador</span>
+            ) : (
+              <>
+                <span style={{ fontWeight: 700, color: palette.text }}>{fila.series ?? '—'}</span>
+                <span style={{ color: palette.muted }}> series · </span>
+                <span style={{ fontWeight: 700, color: palette.text }}>{fila.repeticiones ?? '—'}</span>
+                <span style={{ color: palette.muted }}> reps</span>
+              </>
+            )}
+          </div>
+        </div>
+
+        <div style={{
+          width: 28, height: 28, flexShrink: 0,
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          color: palette.muted,
+          transition: 'transform .2s',
+          transform: expanded ? 'rotate(180deg)' : 'rotate(0deg)',
+        }}>
+          <ChevronDownIcon />
+        </div>
+      </button>
+
+      {expanded && (
+        <div style={{ padding: '0 14px 14px', display: 'flex', flexDirection: 'column', gap: 10 }}>
+          {!eliminado && (
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginTop: 4 }}>
+              <StatBox label="Series" value={fila.series} palette={palette} />
+              <StatBox label="Repeticiones" value={fila.repeticiones} palette={palette} />
+            </div>
+          )}
+
+          {fila.nota && (
+            <div style={{
+              background: palette.amberBg, borderRadius: 10, padding: '10px 12px',
+              display: 'flex', gap: 10,
+            }}>
+              <div style={{ flexShrink: 0, marginTop: 1, color: palette.amberText }}>
+                <NoteIcon />
+              </div>
+              <div>
+                <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase' as const, color: palette.amberText, marginBottom: 2 }}>
+                  Nota del entrenador
+                </div>
+                <div style={{ fontSize: 13, color: palette.amberText, lineHeight: 1.45 }}>{fila.nota}</div>
+              </div>
+            </div>
+          )}
+
+          {fila.ejercicio?.descripcion && !eliminado && (
+            <div style={{ fontSize: 13, color: palette.subtext, lineHeight: 1.5 }}>
+              {fila.ejercicio.descripcion}
+            </div>
+          )}
+
+          {eliminado && (
+            <div style={{
+              background: palette.redBg, color: palette.redText,
+              borderRadius: 10, padding: '10px 12px',
+              fontSize: 13, display: 'flex', gap: 8, alignItems: 'flex-start',
+            }}>
+              <div style={{ flexShrink: 0, marginTop: 1 }}><AlertIcon /></div>
+              <span>Este ejercicio fue removido por tu entrenador. Consultá antes de la próxima sesión.</span>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  )
+}
+
+function EmptyState({ palette }: { palette: Palette }) {
+  return (
+    <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 32, textAlign: 'center' }}>
+      <div>
+        <div style={{
+          width: 72, height: 72, borderRadius: 999,
+          background: palette.accentSoft, color: palette.accent,
+          display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+          marginBottom: 16,
+        }}>
+          <DumbbellIcon />
+        </div>
+        <h2 style={{ fontSize: 20, fontWeight: 800, margin: '0 0 8px', letterSpacing: '-0.02em', color: palette.text }}>
+          Tu rutina está en preparación
+        </h2>
+        <p style={{ fontSize: 14, color: palette.subtext, margin: 0, maxWidth: 280, lineHeight: 1.5 }}>
+          Tu entrenador está armando tu plan personalizado. Apenas esté listo, lo vas a ver acá.
+        </p>
+      </div>
+    </div>
   )
 }
 
@@ -51,7 +258,7 @@ export default function RutinaPage() {
   const [dias, setDias] = useState<number[]>([])
   const [diaActivo, setDiaActivo] = useState<number>(1)
   const [filas, setFilas] = useState<Record<number, FilaRutina[]>>({})
-  const [seleccionada, setSeleccionada] = useState<FilaRutina | null>(null)
+  const [expanded, setExpanded] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -64,31 +271,33 @@ export default function RutinaPage() {
   }, [socioId])
 
   useEffect(() => {
-    function handlePop() { setSeleccionada(null) }
+    function handlePop() { setExpanded(null) }
     window.addEventListener('popstate', handlePop)
     return () => window.removeEventListener('popstate', handlePop)
   }, [])
 
-  function verEjercicio(fila: FilaRutina) {
-    setSeleccionada(fila)
-    window.history.pushState({ ejercicio: fila.id }, '')
-  }
-
-  function volverAlListado() {
-    window.history.back()
+  function toggleExpand(id: string) {
+    if (expanded === id) {
+      if (window.history.state?.__nucleoExpanded) {
+        window.history.back()
+      } else {
+        setExpanded(null)
+      }
+    } else {
+      try { window.history.pushState({ __nucleoExpanded: id }, '') } catch {}
+      setExpanded(id)
+    }
   }
 
   async function loadData() {
     const supabase = createClient()
-
     const [{ data: socioData }, { data: rutinaData }] = await Promise.all([
       supabase.from('socios').select('nombre').eq('id', socioId).single(),
       supabase
         .from('rutina_ejercicios')
-        .select('*, ejercicios(id, nombre, descripcion, imagen_url, eliminado)')
+        .select('*, ejercicios(id, nombre, descripcion, eliminado)')
         .eq('socio_id', socioId)
-        .order('dia')
-        .order('orden'),
+        .order('dia').order('orden'),
     ])
 
     if (socioData) setNombre(socioData.nombre)
@@ -96,7 +305,6 @@ export default function RutinaPage() {
     if (rutinaData) {
       const grouped: Record<number, FilaRutina[]> = {}
       const diasSet = new Set<number>()
-
       for (const row of rutinaData) {
         diasSet.add(row.dia)
         if (!grouped[row.dia]) grouped[row.dia] = []
@@ -110,7 +318,6 @@ export default function RutinaPage() {
           ejercicio: row.ejercicios as Ejercicio | null,
         })
       }
-
       const sortedDias = Array.from(diasSet).sort((a, b) => a - b)
       setDias(sortedDias)
       if (sortedDias.length > 0) setDiaActivo(sortedDias[0])
@@ -125,178 +332,146 @@ export default function RutinaPage() {
     router.push('/')
   }
 
-  const bg = dark ? 'bg-gray-900' : 'bg-gray-50'
-  const card = dark ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
-  const headingCls = dark ? 'text-white' : 'text-gray-900'
-  const muted = dark ? 'text-gray-400' : 'text-gray-500'
-  const tabInactive = dark ? 'bg-gray-800 border-gray-700 text-gray-300' : 'bg-white border-gray-300 text-gray-700'
-  const numCircle = dark ? 'bg-gray-700 text-gray-400' : 'bg-gray-100 text-gray-500'
-  const toggleCls = dark ? 'text-gray-400 hover:text-white' : 'text-gray-500 hover:text-gray-800'
+  const palette: Palette = dark ? {
+    bg: '#0a0a0a', surface: '#171717', surfaceAlt: '#0f0f0f',
+    border: '#262626', borderSoft: '#1f1f1f',
+    text: '#fafafa', subtext: '#a3a3a3', muted: '#525252',
+    accent: '#22c55e', accentSoft: 'rgba(34,197,94,0.15)',
+    amberBg: 'rgba(251,191,36,0.08)', amberText: '#fbbf24',
+    redBg: 'rgba(239,68,68,0.10)', redText: '#f87171',
+  } : {
+    bg: '#fafafa', surface: '#ffffff', surfaceAlt: '#f5f5f5',
+    border: '#e5e5e5', borderSoft: '#efefef',
+    text: '#0a0a0a', subtext: '#525252', muted: '#a3a3a3',
+    accent: '#16a34a', accentSoft: '#dcfce7',
+    amberBg: '#fef3c7', amberText: '#92400e',
+    redBg: '#fef2f2', redText: '#b91c1c',
+  }
 
   if (loading) {
     return (
-      <div className={`min-h-screen ${bg} flex items-center justify-center`}>
-        <p className={`text-sm ${muted}`}>Cargando tu rutina...</p>
+      <div style={{ minHeight: '100vh', background: palette.bg, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <p style={{ fontSize: 14, color: palette.muted }}>Cargando tu rutina...</p>
       </div>
     )
   }
 
-  // Vista detalle de un ejercicio
-  if (seleccionada) {
-    const ej = seleccionada.ejercicio
-    const eliminado = ej?.eliminado ?? seleccionada.ejercicio_id === null
+  const empty = dias.length === 0
 
-    return (
-      <div className={`min-h-screen ${bg} transition-colors`}>
-        <div className="max-w-lg mx-auto px-4 py-6">
-          <div className="flex items-center justify-between mb-6">
-            <button
-              onClick={volverAlListado}
-              className={`text-sm ${muted} hover:${headingCls}`}
-            >
-              ← Volver
-            </button>
-            <button
-              onClick={toggle}
-              className={`p-2 rounded-full transition-colors ${toggleCls}`}
-              title={dark ? 'Modo claro' : 'Modo oscuro'}
-            >
-              {dark ? <SunIcon /> : <MoonIcon />}
-            </button>
-          </div>
-
-          {eliminado && (
-            <div className="bg-red-900/30 border border-red-700 rounded-xl p-4 mb-4">
-              <p className="text-red-400 text-sm font-medium">
-                Este ejercicio fue eliminado de la biblioteca. Consultá con tu entrenador.
-              </p>
-            </div>
-          )}
-
-          <h1 className={`text-2xl font-bold mb-5 ${eliminado ? 'text-red-500 line-through' : headingCls}`}>
-            {ej?.nombre ?? 'Ejercicio eliminado'}
-          </h1>
-
-          <div className="grid grid-cols-2 gap-3 mb-4">
-            <div className={`rounded-xl border p-4 text-center ${card}`}>
-              <p className={`text-3xl font-bold ${headingCls}`}>{seleccionada.series ?? '—'}</p>
-              <p className={`text-xs uppercase tracking-wide mt-1 ${muted}`}>Series</p>
-            </div>
-            <div className={`rounded-xl border p-4 text-center ${card}`}>
-              <p className={`text-3xl font-bold ${headingCls}`}>{seleccionada.repeticiones ?? '—'}</p>
-              <p className={`text-xs uppercase tracking-wide mt-1 ${muted}`}>Repeticiones</p>
-            </div>
-          </div>
-
-          {seleccionada.nota && (
-            <div className={`rounded-xl p-4 mb-4 ${dark ? 'bg-amber-900/30 border border-amber-700' : 'bg-amber-50 border border-amber-200'}`}>
-              <p className={`text-xs font-semibold uppercase tracking-wide mb-1 ${dark ? 'text-amber-400' : 'text-amber-700'}`}>
-                Nota del entrenador
-              </p>
-              <p className={`text-sm ${headingCls}`}>{seleccionada.nota}</p>
-            </div>
-          )}
-
-          {ej?.descripcion && !eliminado && (
-            <div className={`rounded-xl border p-4 ${card}`}>
-              <p className={`text-xs font-semibold uppercase tracking-wide mb-2 ${muted}`}>
-                Descripción
-              </p>
-              <p className={`text-sm leading-relaxed ${dark ? 'text-gray-300' : 'text-gray-700'}`}>{ej.descripcion}</p>
-            </div>
-          )}
-        </div>
-      </div>
-    )
-  }
-
-  // Vista principal: lista de días y ejercicios
   return (
-    <div className={`min-h-screen ${bg} transition-colors`}>
-      <div className="max-w-lg mx-auto px-4 py-6">
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-3">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/logo.png" alt="Núcleo Gimnasio" className="w-10 h-10 object-contain flex-shrink-0" />
-            <div>
-              <h1 className={`text-xl font-bold ${headingCls}`}>{nombre}</h1>
-              <p className={`text-sm ${muted}`}>Tu rutina</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-3">
-            <button
-              onClick={toggle}
-              className={`p-2 rounded-full transition-colors ${toggleCls}`}
-              title={dark ? 'Modo claro' : 'Modo oscuro'}
-            >
-              {dark ? <SunIcon /> : <MoonIcon />}
-            </button>
-            <button
-              onClick={handleLogout}
-              className={`text-sm ${muted} hover:text-gray-800`}
-            >
-              Salir
-            </button>
-          </div>
+    <div style={{ minHeight: '100vh', background: palette.bg, color: palette.text, fontFamily: 'system-ui, -apple-system, sans-serif' }}>
+      {/* Sticky header */}
+      <header style={{
+        position: 'sticky', top: 0, zIndex: 10,
+        background: palette.bg,
+        borderBottom: `1px solid ${palette.border}`,
+        padding: '12px 16px',
+        display: 'flex', alignItems: 'center', gap: 12,
+      }}>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/logo.png" alt="Núcleo" style={{ width: 40, height: 40, objectFit: 'contain', flexShrink: 0 }} />
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ fontSize: 10, fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', color: palette.muted }}>Socio</div>
+          <div style={{ fontSize: 14, fontWeight: 700, letterSpacing: '-0.01em', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{nombre}</div>
         </div>
+        <button
+          onClick={toggle}
+          aria-label="Cambiar tema"
+          style={{
+            width: 36, height: 36, borderRadius: 999,
+            background: 'transparent', border: `1px solid ${palette.border}`,
+            color: palette.text, cursor: 'pointer',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+          }}
+        >
+          {dark ? <SunIcon /> : <MoonIcon />}
+        </button>
+        <button
+          onClick={handleLogout}
+          style={{
+            height: 36, padding: '0 12px', borderRadius: 999,
+            background: 'transparent', border: `1px solid ${palette.border}`,
+            color: palette.text, cursor: 'pointer',
+            display: 'flex', alignItems: 'center', gap: 6,
+            fontSize: 12, fontWeight: 600,
+          }}
+        >
+          <ExitIcon />
+          Salir
+        </button>
+      </header>
 
-        {dias.length === 0 ? (
-          <div className="text-center py-16">
-            <p className={`text-sm ${muted}`}>Tu entrenador todavía no cargó tu rutina.</p>
-          </div>
-        ) : (
-          <>
-            <div className="flex gap-2 overflow-x-auto pb-2 mb-4 no-scrollbar">
-              {dias.map(dia => (
-                <button
-                  key={dia}
-                  onClick={() => setDiaActivo(dia)}
-                  className={`flex-shrink-0 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                    diaActivo === dia ? 'bg-green-600 text-white' : tabInactive
-                  }`}
-                >
-                  Día {dia}
-                </button>
-              ))}
+      {empty ? (
+        <EmptyState palette={palette} />
+      ) : (
+        <div style={{ maxWidth: 600, margin: '0 auto' }}>
+          {/* Routine title */}
+          <div style={{ padding: '20px 16px 8px' }}>
+            <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', color: palette.muted, marginBottom: 4 }}>
+              Tu rutina
             </div>
+            <h1 style={{ fontSize: 26, fontWeight: 800, letterSpacing: '-0.025em', margin: 0, color: palette.text }}>
+              {nombre}
+            </h1>
+          </div>
 
-            <div className="space-y-2">
-              {(filas[diaActivo] ?? []).map((fila, idx) => {
-                const eliminado = fila.ejercicio?.eliminado ?? fila.ejercicio_id === null
-                const resumen = [
-                  fila.series ? `${fila.series} series` : '',
-                  fila.repeticiones ? `${fila.repeticiones} reps` : '',
-                ].filter(Boolean).join(' × ') || 'Ver detalle'
-
+          {/* Day tabs — sticky below header */}
+          <div style={{
+            position: 'sticky', top: 65, zIndex: 5,
+            background: palette.bg,
+            borderBottom: `1px solid ${palette.borderSoft}`,
+            padding: '12px 0 0',
+          }}>
+            <div style={{
+              display: 'flex', gap: 4, overflowX: 'auto',
+              padding: '0 16px',
+              scrollbarWidth: 'none',
+              msOverflowStyle: 'none',
+            }}>
+              {dias.map(dia => {
+                const active = dia === diaActivo
                 return (
                   <button
-                    key={fila.id}
-                    onClick={() => verEjercicio(fila)}
-                    className={`w-full text-left rounded-xl border p-4 flex items-center justify-between transition-colors active:scale-[0.99] ${
-                      eliminado
-                        ? dark ? 'bg-red-900/20 border-red-800' : 'bg-red-50 border-red-200'
-                        : dark ? 'bg-gray-800 border-gray-700 hover:bg-gray-750' : 'bg-white border-gray-200 hover:bg-gray-50'
-                    }`}
+                    key={dia}
+                    onClick={() => { setDiaActivo(dia); setExpanded(null) }}
+                    style={{
+                      flexShrink: 0,
+                      padding: '10px 16px 12px',
+                      background: 'transparent', border: 'none',
+                      borderBottom: `2px solid ${active ? palette.accent : 'transparent'}`,
+                      color: active ? palette.text : palette.subtext,
+                      fontSize: 14, fontWeight: active ? 700 : 500,
+                      cursor: 'pointer', letterSpacing: '-0.005em',
+                      whiteSpace: 'nowrap',
+                    }}
                   >
-                    <div className="flex items-center gap-3">
-                      <span className={`w-7 h-7 rounded-full text-xs font-semibold flex items-center justify-center flex-shrink-0 ${numCircle}`}>
-                        {idx + 1}
-                      </span>
-                      <div>
-                        <p className={`font-medium text-sm ${eliminado ? 'text-red-500 line-through' : headingCls}`}>
-                          {fila.ejercicio?.nombre ?? 'Ejercicio eliminado'}
-                        </p>
-                        <p className={`text-xs mt-0.5 ${muted}`}>{resumen}</p>
-                      </div>
-                    </div>
-                    <span className={`text-xl ${muted}`}>›</span>
+                    Día {dia}
                   </button>
                 )
               })}
             </div>
-          </>
-        )}
-      </div>
+          </div>
+
+          {/* Exercise list */}
+          <div style={{ padding: '16px 16px 32px', display: 'flex', flexDirection: 'column', gap: 10 }}>
+            {(filas[diaActivo] ?? []).map((fila, idx) => (
+              <ExerciseCard
+                key={fila.id}
+                fila={fila}
+                idx={idx + 1}
+                expanded={expanded === fila.id}
+                onToggle={() => toggleExpand(fila.id)}
+                palette={palette}
+              />
+            ))}
+            {(filas[diaActivo] ?? []).length > 0 && (
+              <div style={{ fontSize: 11, color: palette.muted, textAlign: 'center', marginTop: 8, letterSpacing: '0.04em' }}>
+                {(filas[diaActivo] ?? []).length} ejercicios · tocá para ver detalles
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   )
 }
