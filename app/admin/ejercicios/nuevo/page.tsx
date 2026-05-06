@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase'
+import { getYouTubeId, getYouTubeThumbnail } from '@/lib/youtube'
 
 export default function NuevoEjercicioPage() {
   const router = useRouter()
@@ -67,14 +68,32 @@ export default function NuevoEjercicioPage() {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">URL de imagen</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Video de YouTube</label>
           <input
             type="url"
             value={imagenUrl}
             onChange={e => setImagenUrl(e.target.value)}
-            placeholder="https://..."
+            placeholder="https://youtube.com/watch?v=..."
             className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-green-500"
           />
+          {imagenUrl && getYouTubeId(imagenUrl) && (
+            <div className="mt-2 rounded-lg overflow-hidden border border-gray-200 relative" style={{ paddingTop: '30%' }}>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={getYouTubeThumbnail(imagenUrl)!}
+                alt="Preview"
+                className="absolute inset-0 w-full h-full object-cover"
+              />
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="w-10 h-10 rounded-full bg-black/60 flex items-center justify-center">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                </div>
+              </div>
+            </div>
+          )}
+          {imagenUrl && !getYouTubeId(imagenUrl) && (
+            <p className="text-xs text-amber-600 mt-1">La URL no parece ser un link de YouTube válido.</p>
+          )}
         </div>
 
         {error && <p className="text-sm text-red-600">{error}</p>}

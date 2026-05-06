@@ -4,11 +4,13 @@ import { useEffect, useState } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase'
 import { useDarkMode } from '@/lib/useDarkMode'
+import { getYouTubeEmbedUrl } from '@/lib/youtube'
 
 type Ejercicio = {
   id: string
   nombre: string
   descripcion: string | null
+  imagen_url: string | null
   eliminado: boolean
 }
 
@@ -205,6 +207,22 @@ function ExerciseCard({ fila, idx, expanded, onToggle, palette }: {
             </div>
           )}
 
+          {fila.ejercicio?.imagen_url && !eliminado && (() => {
+            const embedUrl = getYouTubeEmbedUrl(fila.ejercicio!.imagen_url!)
+            if (!embedUrl) return null
+            return (
+              <div style={{ borderRadius: 10, overflow: 'hidden', position: 'relative', paddingTop: '56.25%' }}>
+                <iframe
+                  src={embedUrl}
+                  title={fila.ejercicio!.nombre}
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                  style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', border: 'none' }}
+                />
+              </div>
+            )
+          })()}
+
           {fila.ejercicio?.descripcion && !eliminado && (
             <div style={{ fontSize: 13, color: palette.subtext, lineHeight: 1.5 }}>
               {fila.ejercicio.descripcion}
@@ -295,7 +313,7 @@ export default function RutinaPage() {
       supabase.from('socios').select('nombre').eq('id', socioId).single(),
       supabase
         .from('rutina_ejercicios')
-        .select('*, ejercicios(id, nombre, descripcion, eliminado)')
+        .select('*, ejercicios(id, nombre, descripcion, imagen_url, eliminado)')
         .eq('socio_id', socioId)
         .order('dia').order('orden'),
     ])
