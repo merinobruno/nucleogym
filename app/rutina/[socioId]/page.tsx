@@ -20,6 +20,7 @@ type FilaRutina = {
   series: number | null
   repeticiones: number | null
   nota: string | null
+  nota_socio: string | null
   orden: number
   ejercicio: Ejercicio | null
 }
@@ -113,11 +114,20 @@ function StatBox({ label, value, palette }: { label: string; value: number | nul
   )
 }
 
-function ExerciseCard({ fila, idx, expanded, onToggle, palette }: {
+function ExerciseCard({ fila, idx, expanded, onToggle, palette, onSaveNota }: {
   fila: FilaRutina; idx: number; expanded: boolean; onToggle: () => void; palette: Palette
+  onSaveNota: (nota: string) => Promise<void>
 }) {
   const eliminado = fila.ejercicio?.eliminado ?? fila.ejercicio_id === null
   const nombre = fila.ejercicio?.nombre ?? 'Ejercicio eliminado'
+  const [notaSocio, setNotaSocio] = useState(fila.nota_socio ?? '')
+  const [saved, setSaved] = useState(false)
+
+  async function handleSaveNota() {
+    await onSaveNota(notaSocio)
+    setSaved(true)
+    setTimeout(() => setSaved(false), 2000)
+  }
 
   return (
     <div style={{
@@ -239,6 +249,32 @@ function ExerciseCard({ fila, idx, expanded, onToggle, palette }: {
               <span>Este ejercicio fue removido por tu entrenador. Consultá antes de la próxima sesión.</span>
             </div>
           )}
+
+          {/* Nota personal del socio */}
+          <div style={{ borderTop: `1px solid ${palette.border}`, paddingTop: 10 }}>
+            <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase' as const, color: palette.muted, marginBottom: 6 }}>
+              Tu nota personal
+            </div>
+            <textarea
+              value={notaSocio}
+              onChange={e => setNotaSocio(e.target.value)}
+              onBlur={handleSaveNota}
+              placeholder="Ej: 20kg mancuernas, agarre neutro..."
+              rows={2}
+              style={{
+                width: '100%', padding: '8px 10px',
+                background: palette.surfaceAlt,
+                border: `1px solid ${palette.border}`,
+                borderRadius: 8, resize: 'none',
+                fontSize: 13, color: palette.text,
+                outline: 'none', fontFamily: 'inherit',
+                boxSizing: 'border-box' as const,
+              }}
+            />
+            <div style={{ fontSize: 11, color: saved ? palette.accent : 'transparent', marginTop: 4, transition: 'color .2s' }}>
+              ✓ Guardado
+            </div>
+          </div>
         </div>
       )}
     </div>
@@ -314,6 +350,7 @@ export default function RutinaPage() {
       supabase
         .from('rutina_ejercicios')
         .select('*, ejercicios(id, nombre, descripcion, imagen_url, eliminado)')
+        // nota_socio is included in the wildcard *
         .eq('socio_id', socioId)
         .order('dia').order('orden'),
     ])
@@ -332,6 +369,7 @@ export default function RutinaPage() {
           series: row.series,
           repeticiones: row.repeticiones,
           nota: row.nota,
+          nota_socio: row.nota_socio ?? null,
           orden: row.orden,
           ejercicio: row.ejercicios as Ejercicio | null,
         })
@@ -343,6 +381,18 @@ export default function RutinaPage() {
     }
 
     setLoading(false)
+  }
+
+  async function saveNotaSocio(filaId: string, nota: string) {
+    const supabase = createClient()
+    await supabase.from('rutina_ejercicios').update({ nota_socio: nota || null }).eq('id', filaId)
+    setFilas(prev => {
+      const next = { ...prev }
+      for (const dia in next) {
+        next[+dia] = next[+dia].map(f => f.id === filaId ? { ...f, nota_socio: nota || null } : f)
+      }
+      return next
+    })
   }
 
   function handleLogout() {
@@ -480,6 +530,7 @@ export default function RutinaPage() {
                 expanded={expanded === fila.id}
                 onToggle={() => toggleExpand(fila.id)}
                 palette={palette}
+                onSaveNota={(nota) => saveNotaSocio(fila.id, nota)}
               />
             ))}
             {(filas[diaActivo] ?? []).length > 0 && (

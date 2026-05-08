@@ -5,12 +5,19 @@ import { useRouter, useParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase'
 import { getYouTubeId, getYouTubeThumbnail } from '@/lib/youtube'
 
+const MUSCLE_TAGS = [
+  'Abdominales', 'Core', 'Pecho', 'Espalda', 'Hombros',
+  'Bíceps', 'Tríceps', 'Cuádriceps', 'Isquiotibiales',
+  'Glúteos', 'Pantorrillas', 'Cardio', 'Cuerpo completo',
+]
+
 export default function EditarEjercicioPage() {
   const router = useRouter()
   const { id } = useParams<{ id: string }>()
   const [nombre, setNombre] = useState('')
   const [descripcion, setDescripcion] = useState('')
   const [imagenUrl, setImagenUrl] = useState('')
+  const [tags, setTags] = useState<string[]>([])
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
@@ -23,13 +30,18 @@ export default function EditarEjercicioPage() {
         setNombre(data.nombre)
         setDescripcion(data.descripcion ?? '')
         setImagenUrl(data.imagen_url ?? '')
+        setTags(data.tags ?? [])
       }
       setLoading(false)
     }
     fetchEjercicio()
   }, [id])
 
-  async function handleSubmit(e: React.FormEvent) {
+  function toggleTag(tag: string) {
+    setTags(prev => prev.includes(tag) ? prev.filter(t => t !== tag) : [...prev, tag])
+  }
+
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
     if (!nombre.trim()) return
     setSaving(true)
@@ -40,6 +52,7 @@ export default function EditarEjercicioPage() {
       nombre: nombre.trim(),
       descripcion: descripcion.trim() || null,
       imagen_url: imagenUrl.trim() || null,
+      tags,
     }).eq('id', id)
 
     if (error) {
@@ -83,6 +96,27 @@ export default function EditarEjercicioPage() {
             rows={3}
             className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-green-500 resize-none"
           />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">Grupos musculares</label>
+          <div className="flex flex-wrap gap-1.5">
+            {MUSCLE_TAGS.map(tag => {
+              const active = tags.includes(tag)
+              return (
+                <button
+                  key={tag}
+                  type="button"
+                  onClick={() => toggleTag(tag)}
+                  className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
+                    active ? 'bg-green-600 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  }`}
+                >
+                  {tag}
+                </button>
+              )
+            })}
+          </div>
         </div>
 
         <div>
