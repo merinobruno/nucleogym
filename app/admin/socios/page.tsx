@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase'
+import { normalize } from '@/lib/capFirst'
 
 type Socio = {
   id: string
@@ -59,8 +60,8 @@ export default function SociosPage() {
     })
     .filter(s => {
       if (!busqueda.trim()) return true
-      const q = busqueda.toLowerCase()
-      return s.nombre.toLowerCase().includes(q) || s.dni.includes(q)
+      const q = normalize(busqueda)
+      return normalize(s.nombre).includes(q) || s.dni.includes(q)
     })
 
   const conteos = {

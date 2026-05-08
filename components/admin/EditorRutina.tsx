@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase'
+import { normalize } from '@/lib/capFirst'
 
 const MUSCLE_TAGS = [
   'Abdominales', 'Core', 'Pecho', 'Espalda', 'Hombros',
@@ -152,7 +153,7 @@ export default function EditorRutina({ socioId }: Props) {
   }
 
   const ejerciciosFiltrados = ejercicios.filter(e => {
-    const matchNombre = e.nombre.toLowerCase().includes(busqueda.toLowerCase())
+    const matchNombre = normalize(e.nombre).includes(normalize(busqueda))
     const matchTags = tagsFiltro.length === 0 || tagsFiltro.some(t => e.tags.includes(t))
     return matchNombre && matchTags
   })
