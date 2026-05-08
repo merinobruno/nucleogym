@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase'
+import { capFirst } from '@/lib/capFirst'
 
 export default function NuevoSocioPage() {
   const router = useRouter()
@@ -48,7 +49,8 @@ export default function NuevoSocioPage() {
           <input
             type="text"
             value={nombre}
-            onChange={e => setNombre(e.target.value)}
+            onChange={e => setNombre(capFirst(e.target.value))}
+            autoCapitalize="sentences"
             required
             autoFocus
             className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-green-500"

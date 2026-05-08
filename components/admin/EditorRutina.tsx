@@ -252,6 +252,7 @@ export default function EditorRutina({ socioId }: Props) {
                               defaultValue={fila.nota ?? ''}
                               onBlur={e => actualizarFila(fila.id, 'nota', e.target.value)}
                               placeholder="Nota para el socio..."
+                              autoCapitalize="sentences"
                               className="w-full border border-gray-300 rounded px-2 py-1 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-green-500"
                             />
                           </td>

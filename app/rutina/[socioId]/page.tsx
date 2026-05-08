@@ -11,6 +11,7 @@ type Ejercicio = {
   nombre: string
   descripcion: string | null
   imagen_url: string | null
+  tags: string[]
   eliminado: boolean
 }
 
@@ -200,6 +201,22 @@ function ExerciseCard({ fila, idx, expanded, onToggle, palette, onSaveNota }: {
             </div>
           )}
 
+          {!eliminado && fila.ejercicio?.tags && fila.ejercicio.tags.length > 0 && (
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+              {fila.ejercicio.tags.map(tag => (
+                <span key={tag} style={{
+                  fontSize: 11, fontWeight: 600,
+                  padding: '3px 10px', borderRadius: 999,
+                  background: palette.accentSoft,
+                  color: palette.accent,
+                  letterSpacing: '0.02em',
+                }}>
+                  {tag}
+                </span>
+              ))}
+            </div>
+          )}
+
           {fila.nota && (
             <div style={{
               background: palette.amberBg, borderRadius: 10, padding: '10px 12px',
@@ -349,8 +366,7 @@ export default function RutinaPage() {
       supabase.from('socios').select('nombre').eq('id', socioId).single(),
       supabase
         .from('rutina_ejercicios')
-        .select('*, ejercicios(id, nombre, descripcion, imagen_url, eliminado)')
-        // nota_socio is included in the wildcard *
+        .select('*, ejercicios(id, nombre, descripcion, imagen_url, tags, eliminado)')
         .eq('socio_id', socioId)
         .order('dia').order('orden'),
     ])

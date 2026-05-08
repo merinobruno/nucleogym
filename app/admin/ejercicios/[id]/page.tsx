@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase'
 import { getYouTubeId, getYouTubeThumbnail } from '@/lib/youtube'
+import { capFirst } from '@/lib/capFirst'
 
 const MUSCLE_TAGS = [
   'Abdominales', 'Core', 'Pecho', 'Espalda', 'Hombros',
@@ -81,7 +82,8 @@ export default function EditarEjercicioPage() {
           <input
             type="text"
             value={nombre}
-            onChange={e => setNombre(e.target.value)}
+            onChange={e => setNombre(capFirst(e.target.value))}
+            autoCapitalize="sentences"
             required
             autoFocus
             className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-green-500"
@@ -92,7 +94,8 @@ export default function EditarEjercicioPage() {
           <label className="block text-sm font-medium text-gray-700 mb-1">Descripción</label>
           <textarea
             value={descripcion}
-            onChange={e => setDescripcion(e.target.value)}
+            onChange={e => setDescripcion(capFirst(e.target.value))}
+            autoCapitalize="sentences"
             rows={3}
             className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-green-500 resize-none"
           />

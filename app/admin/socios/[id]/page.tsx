@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase'
+import { capFirst } from '@/lib/capFirst'
 import EditorRutina from '@/components/admin/EditorRutina'
 
 type Socio = {
@@ -93,7 +94,8 @@ export default function DetalleSocioPage() {
               <input
                 type="text"
                 value={nombre}
-                onChange={e => setNombre(e.target.value)}
+                onChange={e => setNombre(capFirst(e.target.value))}
+                autoCapitalize="sentences"
                 required
                 className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-green-500"
               />
