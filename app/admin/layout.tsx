@@ -75,6 +75,16 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               >
                 Ejercicios
               </Link>
+              <Link
+                href="/admin/guia"
+                className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+                  pathname.startsWith('/admin/guia')
+                    ? 'bg-green-50 text-green-700'
+                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                }`}
+              >
+                Guía
+              </Link>
             </div>
           </div>
 
