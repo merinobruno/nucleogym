@@ -19,6 +19,7 @@ export default function EditarEjercicioPage() {
   const [descripcion, setDescripcion] = useState('')
   const [imagenUrl, setImagenUrl] = useState('')
   const [tags, setTags] = useState<string[]>([])
+  const [customInput, setCustomInput] = useState('')
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
@@ -40,6 +41,12 @@ export default function EditarEjercicioPage() {
 
   function toggleTag(tag: string) {
     setTags(prev => prev.includes(tag) ? prev.filter(t => t !== tag) : [...prev, tag])
+  }
+
+  function addCustomTag() {
+    const val = customInput.trim()
+    if (val && !tags.includes(val)) setTags(prev => [...prev, val])
+    setCustomInput('')
   }
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -119,6 +126,21 @@ export default function EditarEjercicioPage() {
                 </button>
               )
             })}
+            {tags.filter(t => !MUSCLE_TAGS.includes(t)).map(t => (
+              <span key={t} className="flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium bg-green-600 text-white">
+                {t}
+                <button type="button" onClick={() => setTags(prev => prev.filter(x => x !== t))} className="hover:opacity-70 leading-none">×</button>
+              </span>
+            ))}
+            <input
+              type="text"
+              value={customInput}
+              onChange={e => setCustomInput(capFirst(e.target.value))}
+              onKeyDown={e => { if (e.key === 'Enter' || e.key === ',') { e.preventDefault(); addCustomTag() } }}
+              onBlur={addCustomTag}
+              placeholder="Otro..."
+              className="px-3 py-1 rounded-full text-xs font-medium bg-gray-50 text-gray-600 border border-dashed border-gray-300 outline-none focus:border-green-500 w-24 placeholder:text-gray-400"
+            />
           </div>
         </div>
 
