@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { createClient } from '@/lib/supabase'
 import { normalize } from '@/lib/capFirst'
 
@@ -33,6 +33,7 @@ export default function EditorRutina({ socioId }: Props) {
   const [tagsFiltro, setTagsFiltro] = useState<string[]>([])
   const [mostrarBuscador, setMostrarBuscador] = useState(false)
   const [loading, setLoading] = useState(true)
+  const debounceRef = useRef<Record<string, ReturnType<typeof setTimeout>>>({})
 
   useEffect(() => {
     loadRutina()
@@ -148,6 +149,27 @@ export default function EditorRutina({ socioId }: Props) {
     await supabase.from('rutina_ejercicios').update({ [campo]: parsed }).eq('id', filaId)
   }
 
+  function handleCampoChange(filaId: string, campo: 'series' | 'repeticiones' | 'nota', valor: string) {
+    setFilas(prev => ({
+      ...prev,
+      [diaActivo]: (prev[diaActivo] ?? []).map(f => {
+        if (f.id !== filaId) return f
+        if (campo === 'nota') return { ...f, nota: valor }
+        return { ...f, [campo]: valor === '' ? null : parseInt(valor) }
+      }),
+    }))
+    const key = `${filaId}-${campo}`
+    clearTimeout(debounceRef.current[key])
+    debounceRef.current[key] = setTimeout(() => actualizarFila(filaId, campo, valor), 600)
+  }
+
+  function handleCampoBlur(filaId: string, campo: 'series' | 'repeticiones' | 'nota', valor: string) {
+    const key = `${filaId}-${campo}`
+    clearTimeout(debounceRef.current[key])
+    delete debounceRef.current[key]
+    actualizarFila(filaId, campo, valor)
+  }
+
   function toggleTag(tag: string) {
     setTagsFiltro(prev => prev.includes(tag) ? prev.filter(t => t !== tag) : [...prev, tag])
   }
@@ -233,8 +255,9 @@ export default function EditorRutina({ socioId }: Props) {
                             <input
                               type="number"
                               min="0"
-                              defaultValue={fila.series ?? ''}
-                              onBlur={e => actualizarFila(fila.id, 'series', e.target.value)}
+                              value={fila.series !== null ? String(fila.series) : ''}
+                              onChange={e => handleCampoChange(fila.id, 'series', e.target.value)}
+                              onBlur={e => handleCampoBlur(fila.id, 'series', e.target.value)}
                               className="w-16 border border-gray-300 rounded px-2 py-1 text-sm text-gray-900 focus:outline-none focus:ring-1 focus:ring-green-500"
                             />
                           </td>
@@ -242,16 +265,18 @@ export default function EditorRutina({ socioId }: Props) {
                             <input
                               type="number"
                               min="0"
-                              defaultValue={fila.repeticiones ?? ''}
-                              onBlur={e => actualizarFila(fila.id, 'repeticiones', e.target.value)}
+                              value={fila.repeticiones !== null ? String(fila.repeticiones) : ''}
+                              onChange={e => handleCampoChange(fila.id, 'repeticiones', e.target.value)}
+                              onBlur={e => handleCampoBlur(fila.id, 'repeticiones', e.target.value)}
                               className="w-16 border border-gray-300 rounded px-2 py-1 text-sm text-gray-900 focus:outline-none focus:ring-1 focus:ring-green-500"
                             />
                           </td>
                           <td className="px-4 py-2 hidden md:table-cell">
                             <input
                               type="text"
-                              defaultValue={fila.nota ?? ''}
-                              onBlur={e => actualizarFila(fila.id, 'nota', e.target.value)}
+                              value={fila.nota ?? ''}
+                              onChange={e => handleCampoChange(fila.id, 'nota', e.target.value)}
+                              onBlur={e => handleCampoBlur(fila.id, 'nota', e.target.value)}
                               placeholder="Nota para el socio..."
                               autoCapitalize="sentences"
                               className="w-full border border-gray-300 rounded px-2 py-1 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-green-500"
