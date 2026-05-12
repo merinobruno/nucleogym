@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase'
 import { useDarkMode } from '@/lib/useDarkMode'
@@ -123,8 +123,24 @@ function ExerciseCard({ fila, idx, expanded, onToggle, palette, onSaveNota }: {
   const nombre = fila.ejercicio?.nombre ?? 'Ejercicio eliminado'
   const [notaSocio, setNotaSocio] = useState(fila.nota_socio ?? '')
   const [saved, setSaved] = useState(false)
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-  async function handleSaveNota() {
+  function handleChange(e: React.ChangeEvent<HTMLTextAreaElement>) {
+    const val = e.target.value
+    setNotaSocio(val)
+    if (debounceRef.current) clearTimeout(debounceRef.current)
+    debounceRef.current = setTimeout(async () => {
+      await onSaveNota(val)
+      setSaved(true)
+      setTimeout(() => setSaved(false), 2000)
+    }, 600)
+  }
+
+  async function handleBlur() {
+    if (debounceRef.current) {
+      clearTimeout(debounceRef.current)
+      debounceRef.current = null
+    }
     await onSaveNota(notaSocio)
     setSaved(true)
     setTimeout(() => setSaved(false), 2000)
@@ -274,8 +290,8 @@ function ExerciseCard({ fila, idx, expanded, onToggle, palette, onSaveNota }: {
             </div>
             <textarea
               value={notaSocio}
-              onChange={e => setNotaSocio(e.target.value)}
-              onBlur={handleSaveNota}
+              onChange={handleChange}
+              onBlur={handleBlur}
               placeholder="Ej: 20kg mancuernas, agarre neutro..."
               rows={2}
               style={{
@@ -400,8 +416,11 @@ export default function RutinaPage() {
   }
 
   async function saveNotaSocio(filaId: string, nota: string) {
-    const supabase = createClient()
-    await supabase.from('rutina_ejercicios').update({ nota_socio: nota || null }).eq('id', filaId)
+    await fetch('/api/nota', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ filaId, nota, socioId }),
+    })
     setFilas(prev => {
       const next = { ...prev }
       for (const dia in next) {
