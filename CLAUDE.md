@@ -1,175 +1,147 @@
-# Gimnasio Núcleo — Contexto del Proyecto
+# CLAUDE.md
 
-## ¿Qué es esto?
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-Plataforma web para el **Gimnasio Núcleo** que reemplaza las hojas de papel con las rutinas de entrenamiento. Los socios acceden desde el celular sin instalar nada. Los entrenadores administran todo desde un panel web.
+## Qué es esto
+
+Plataforma web para el **Gimnasio Núcleo** que reemplaza las hojas de papel con rutinas de entrenamiento. Los socios acceden desde el celular sin instalar nada. Los entrenadores administran todo desde un panel web.
+
+Stack: Next.js 16 (App Router) + Supabase + Tailwind CSS v4 + TypeScript. Deploy en Vercel.
 
 ---
 
-## Stack tecnológico
+## Comandos
 
-| Capa | Tecnología |
-|---|---|
-| Frontend + API routes | Next.js (App Router) |
-| Base de datos + Auth + Storage | Supabase |
-| Hosting + Deploy | Vercel |
-| Control de versiones | GitHub |
+```bash
+npm run dev      # servidor de desarrollo (localhost:3000)
+npm run build    # build de producción (también valida tipos)
+npm run lint     # ESLint
+```
+
+No hay tests automatizados. Verificar manualmente abriendo el navegador.
+
+---
+
+## Arquitectura de autenticación (dos sistemas separados)
+
+Este es el aspecto más importante a entender antes de tocar cualquier página.
+
+**Socios (no usan Supabase Auth):**
+- Se autentican con DNI + clave (campo texto plano en la tabla `socios`)
+- Tras autenticarse, se guarda `socioId` en `localStorage` con key `nucleogym_socio`
+- Las páginas del socio verifican ese valor con `localStorage.getItem('nucleogym_socio')`
+- El cliente Supabase en páginas de socios usa la anon key. Si hay RLS que bloquea operaciones, usar la API route `/api/nota` como patrón (usa `SUPABASE_SERVICE_ROLE_KEY` + valida que el row pertenece al socioId)
+
+**Entrenador (usa Supabase Auth):**
+- `app/admin/layout.tsx` verifica la sesión con `supabase.auth.getUser()` en cada render
+- `lib/auth.ts` exporta `requireAuth()` para uso en Server Components
+- `lib/supabase.ts` → cliente browser; `lib/supabase-server.ts` → cliente server (con cookies)
+
+---
+
+## Estructura real de archivos
+
+La mayor parte de la UI está **inline en las páginas**, no en components:
+
+```
+app/
+  page.tsx                        → Login socio (2 pasos: DNI → clave)
+  rutina/[socioId]/page.tsx       → Vista de rutina del socio (mobile-first)
+  admin/
+    layout.tsx                    → Nav + protección de sesión
+    page.tsx                      → Redirect a /admin/socios
+    login/page.tsx
+    socios/page.tsx               → Lista con filtros activos/inactivos/todos
+    socios/nuevo/page.tsx
+    socios/[id]/page.tsx          → Perfil + EditorRutina
+    ejercicios/page.tsx           → Biblioteca con papelera (soft delete)
+    ejercicios/nuevo/page.tsx
+    ejercicios/[id]/page.tsx
+    guia/page.tsx                 → Documentación estática para el entrenador
+  api/
+    nota/route.ts                 → POST: guarda nota_socio con service role key
+
+components/
+  admin/
+    EditorRutina.tsx              → Único componente separado; maneja días y ejercicios de rutina
+
+lib/
+  supabase.ts                     → createClient() browser
+  supabase-server.ts              → createClient() server (SSR con cookies)
+  auth.ts                         → requireAuth() para Server Components
+  capFirst.ts                     → capFirst(str), normalize(str) para búsqueda sin acentos
+  youtube.ts                      → getYouTubeEmbedUrl(), getYouTubeThumbnail()
+  useDarkMode.ts                  → hook, persiste en localStorage key "nucleogym_dark"
+```
+
+---
+
+## Patrones de estilo
+
+**Páginas de admin** (`/admin/*`): Tailwind CSS con clases utilitarias.
+
+**Páginas del socio** (`/` y `/rutina/*`): inline styles con un objeto `Palette` que cambia entre modo claro y oscuro. No usar Tailwind en estas páginas — el dark mode se controla vía el hook `useDarkMode` y los estilos se pasan como prop a los componentes hijos.
+
+```tsx
+// Patrón en páginas de socio
+const palette: Palette = dark ? { bg: '#0a0a0a', ... } : { bg: '#fafafa', ... }
+// Se pasa como prop a todos los componentes de la página
+```
 
 ---
 
 ## Esquema de base de datos
 
-### Tabla: `ejercicios`
+### `ejercicios`
 ```sql
-id            uuid PRIMARY KEY DEFAULT gen_random_uuid()
-nombre        text NOT NULL
-descripcion   text
-imagen_url    text
-eliminado     boolean NOT NULL DEFAULT false
-created_at    timestamptz DEFAULT now()
+id uuid PK, nombre text, descripcion text, imagen_url text,
+tags text[] DEFAULT '{}',   -- grupos musculares, ej: ['Pecho', 'Tríceps']
+eliminado boolean DEFAULT false, created_at timestamptz
 ```
 
-### Tabla: `socios`
+### `socios`
 ```sql
-id            uuid PRIMARY KEY DEFAULT gen_random_uuid()
-nombre        text NOT NULL
-dni           text NOT NULL UNIQUE
-clave         text NOT NULL
-activo        boolean NOT NULL DEFAULT true
-created_at    timestamptz DEFAULT now()
+id uuid PK, nombre text, dni text UNIQUE, clave text,
+activo boolean DEFAULT true, created_at timestamptz
 ```
 
-### Tabla: `rutina_ejercicios`
+### `rutina_ejercicios`
 ```sql
-id              uuid PRIMARY KEY DEFAULT gen_random_uuid()
-socio_id        uuid NOT NULL REFERENCES socios(id) ON DELETE CASCADE
-dia             integer NOT NULL  -- 1, 2, 3, 4, 5...
-ejercicio_id    uuid REFERENCES ejercicios(id) ON DELETE SET NULL
-series          integer
-repeticiones    integer
-nota            text
-orden           integer NOT NULL DEFAULT 0
-created_at      timestamptz DEFAULT now()
+id uuid PK, socio_id uuid → socios, dia integer,
+ejercicio_id uuid → ejercicios ON DELETE SET NULL,
+series integer, repeticiones integer,
+nota text,           -- nota del entrenador, visible al socio
+nota_socio text,     -- nota personal del socio (ej: "20kg mancuernas")
+orden integer DEFAULT 0, created_at timestamptz
 ```
 
-> **Nota importante:** cuando `ejercicio_id` es NULL y el campo `eliminado` del ejercicio referenciado es true, el frontend muestra ese ejercicio como **ELIMINADO** en la rutina. No se borran filas de `rutina_ejercicios` al eliminar un ejercicio.
+**Soft delete en ejercicios:** al eliminar, se setea `eliminado = true`. Las filas de `rutina_ejercicios` se mantienen. El frontend muestra el ejercicio tachado/rojo cuando `ejercicio.eliminado = true` o cuando `ejercicio_id = null`.
 
 ---
 
-## Roles y autenticación
+## Comportamientos clave
 
-- **Socios:** no tienen cuenta en Supabase Auth. Se autentican con DNI + clave (campo texto en la tabla `socios`). La sesión se maneja del lado del cliente con `localStorage` o cookies simples.
-- **Entrenador:** una única cuenta en Supabase Auth (email + password). Se autentica con el sistema nativo de Supabase. Accede al panel de administración.
+### Guardado automático (EditorRutina)
+`components/admin/EditorRutina.tsx` usa inputs controlados (`value` + `onChange`) con debounce de 600ms hacia Supabase + flush inmediato en `onBlur`. No hay botón de guardar.
 
----
+### Nota personal del socio
+`app/rutina/[socioId]/page.tsx` guarda `nota_socio` via `POST /api/nota` (no directo a Supabase) para evitar problemas de RLS. El patrón: `onChange` debounce 600ms + `onBlur` flush inmediato + indicador visual "✓ Guardado".
 
-## Estructura del proyecto (Next.js App Router)
+### Búsqueda sin acentos
+Usar siempre `normalize()` de `lib/capFirst.ts` para comparar strings. Ejemplo: `normalize('Tríceps').includes(normalize(query))`.
 
-```
-/app
-  /page.tsx                  → Pantalla pública: buscador por DNI
-  /rutina/[socioId]/page.tsx → Vista de rutina del socio (protegida por clave)
-  /admin
-    /login/page.tsx          → Login del entrenador
-    /layout.tsx              → Layout protegido (verifica sesión Supabase)
-    /page.tsx                → Redirect a /admin/socios
-    /socios/page.tsx         → Lista de socios con filtros
-    /socios/nuevo/page.tsx   → Alta de socio
-    /socios/[id]/page.tsx    → Detalle y edición de socio + editor de rutina
-    /ejercicios/page.tsx     → Biblioteca de ejercicios
+### Auto-capitalización
+Aplicar `capFirst()` de `lib/capFirst.ts` en el `onChange` de inputs de texto para entrenadores. Agregar `autoCapitalize="sentences"` en el HTML para teclados móviles.
 
-/components
-  /socio/
-    BuscadorDNI.tsx
-    ListaDias.tsx
-    DetalleEjercicio.tsx
-  /admin/
-    TablasSocios.tsx
-    FiltrosSocios.tsx
-    EditorRutina.tsx
-    TabDias.tsx
-    FilaEjercicio.tsx
-    FormularioSocio.tsx
-    TablaEjercicios.tsx
-    FormularioEjercicio.tsx
-
-/lib
-  supabase.ts               → Cliente de Supabase (browser)
-  supabase-server.ts        → Cliente de Supabase (server)
-  auth.ts                   → Helpers de autenticación
-```
+### Tags de ejercicios
+`MUSCLE_TAGS` (lista fija de grupos musculares) está definida tanto en `EditorRutina.tsx` como en los forms de ejercicios. Los tags se almacenan como `text[]` en Postgres. El buscador del editor filtra por tag (OR entre tags seleccionados).
 
 ---
 
-## Flujos principales
-
-### Flujo del socio (público)
-1. El socio entra a `/` e ingresa su DNI
-2. Si el DNI existe y el socio está **activo**, se le pide la clave
-3. Si la clave es correcta, se lo redirige a `/rutina/[socioId]`
-4. Ve los días disponibles (Día 1, Día 2, etc.) como tabs o lista
-5. Elige un día y ve la lista de ejercicios
-6. Toca un ejercicio para ver nombre, series, repeticiones, nota del entrenador, descripción e imagen
-7. Si un ejercicio fue eliminado de la biblioteca, aparece tachado y marcado como **ELIMINADO**
-
-### Flujo del entrenador (privado)
-1. El entrenador entra a `/admin/login` y se autentica con email + password (Supabase Auth)
-2. Accede a `/admin/socios` — ve la tabla con filtros: todos / activos / inactivos
-3. Puede crear un socio nuevo desde `/admin/socios/nuevo`
-4. Desde la tabla, accede al perfil de un socio: `/admin/socios/[id]`
-5. En el perfil puede editar datos, cambiar clave y editar la rutina
-6. El editor de rutina tiene tabs por día. El botón **+** agrega un día nuevo. Cada día tiene su lista de ejercicios con campos de series, repeticiones y nota, más un buscador para agregar ejercicios de la biblioteca
-7. **Todos los cambios en la rutina se guardan instantáneamente** (sin botón de guardar)
-8. Desde `/admin/ejercicios` gestiona la biblioteca: crear, editar y eliminar ejercicios
-
----
-
-## Comportamientos especiales
-
-### Ejercicio eliminado
-- Al eliminar un ejercicio de la biblioteca, se setea `eliminado = true` en la tabla `ejercicios`
-- **No se tocan las filas de `rutina_ejercicios`** que lo referencian
-- En la vista del socio y en el panel del entrenador, ese ejercicio se muestra como **ELIMINADO** (con estilo visual diferenciado: tachado, color rojo o gris)
-- El socio debe acercarse al entrenador para actualizar su rutina
-
-### Socio inactivo
-- Un socio con `activo = false` no aparece en el buscador público
-- El entrenador lo ve siempre en el panel con el filtro correspondiente
-- El entrenador puede reactivarlo en cualquier momento
-
-### Guardado automático de rutinas
-- Cada acción en el editor de rutinas (agregar ejercicio, cambiar series, escribir una nota, eliminar un ejercicio) dispara un upsert/delete inmediato a Supabase
-- No hay botón de "Guardar". El feedback puede ser un indicador visual sutil (ej: checkmark animado)
-
----
-
-## Orden de desarrollo recomendado
-
-1. **Setup inicial** — Next.js + Supabase + Vercel + GitHub conectados y desplegados
-2. **Schema de base de datos** — crear las tablas en Supabase con el schema de arriba
-3. **Login del entrenador** — `/admin/login` con Supabase Auth, layout protegido
-4. **Biblioteca de ejercicios** — CRUD completo en `/admin/ejercicios`
-5. **Gestión de socios** — alta, lista con filtros, edición de datos y clave
-6. **Editor de rutinas** — lo más complejo, construirlo sobre lo anterior
-7. **Vista pública del socio** — buscador por DNI, clave, días, detalle de ejercicio
-8. **Comportamiento de ejercicio eliminado** — verificar que se muestra correctamente en ambas vistas
-9. **Pulido visual y responsive** — optimizar para móvil, que es el dispositivo principal de los socios
-
----
-
-## Consideraciones de UX
-
-- La vista del socio debe estar **optimizada para móvil** — es el uso principal
-- El panel del entrenador puede asumir escritorio, pero no romperse en móvil
-- Los cambios en la rutina deben sentirse instantáneos — usar optimistic UI si es necesario
-- El ejercicio ELIMINADO debe ser visualmente claro para el socio, sin ser alarmante
-
----
-
-## Variables de entorno necesarias
+## Variables de entorno
 
 ```env
 NEXT_PUBLIC_SUPABASE_URL=
 NEXT_PUBLIC_SUPABASE_ANON_KEY=
-SUPABASE_SERVICE_ROLE_KEY=
+SUPABASE_SERVICE_ROLE_KEY=       # solo server-side, nunca exponer al cliente
 ```
